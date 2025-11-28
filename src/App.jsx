@@ -629,6 +629,14 @@ const PostCreator = ({ assistant, setPage }) => {
     }
     };
 
+    const publish = async () => {
+        setGenerating(true);
+        await new Promise(r => setTimeout(r, 2000));
+        setGenerating(false);
+        setStep(4);
+     };
+
+
   const togglePlatform = (id) => {
     const p = SOCIAL_PLATFORMS.find(x => x.id === id);
     if (p?.comingSoon || !p?.connected) return;
@@ -705,7 +713,7 @@ const PostCreator = ({ assistant, setPage }) => {
           </Card>
         )}
 
-        {/* Step 2 */}
+{/* Step 2 */}
         {step === 2 && post && (
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -717,7 +725,7 @@ const PostCreator = ({ assistant, setPage }) => {
             </div>
 
             <div className="flex gap-8">
-<              div className="flex-shrink-0">
+              <div className="flex-shrink-0">
                 <div className="w-72 h-72 rounded-xl overflow-hidden shadow-xl bg-gray-100">
                   {post.imageUrl ? (
                     <img 
@@ -742,7 +750,7 @@ const PostCreator = ({ assistant, setPage }) => {
                   )}
                 </div>
                 <div className="flex gap-2 mt-3">
-                  <Button variant="outline" size="sm" className="flex-1"><Download className="w-4 h-4" /> Télécharger</Button>
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => { window.open(post.imageUrl, '_blank'); }}><Download className="w-4 h-4" /> Télécharger</Button>
                   <Button variant="outline" size="sm" className="flex-1"><Edit className="w-4 h-4" /> Modifier</Button>
                 </div>
               </div>
@@ -763,6 +771,8 @@ const PostCreator = ({ assistant, setPage }) => {
             </div>
           </Card>
         )}
+
+        
 
         {/* Step 3 */}
         {step === 3 && (
