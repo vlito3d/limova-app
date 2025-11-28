@@ -636,6 +636,41 @@ const PostCreator = ({ assistant, setPage }) => {
         setStep(4);
      };
 
+    const addToCalendar = async () => {
+        setGenerating(true);
+        
+        try {
+        const response = await fetch("https://n8n.nightcrow.fr/webhook/Add_to_calendar", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            caption: caption,
+            hashtags: post.hashtags,
+            imageUrl: post.imageUrl,
+            platforms: platforms,
+            scheduleDate: scheduleDate,
+            scheduleTime: scheduleTime,
+            publishNow: publishNow,
+            createdAt: new Date().toISOString()
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error("Erreur serveur: " + response.status);
+        }
+        
+        const result = await response.json();
+        console.log("CALENDRIER:", result);
+        
+        setStep(4);
+        
+        } catch (error) {
+        console.log("ERREUR:", error);
+        alert("Erreur: " + error.message);
+        } finally {
+        setGenerating(false);
+        }
+    };    
 
   const togglePlatform = (id) => {
     const p = SOCIAL_PLATFORMS.find(x => x.id === id);
@@ -809,7 +844,7 @@ const PostCreator = ({ assistant, setPage }) => {
 
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => setStep(2)}><ChevronLeft className="w-4 h-4" /> Retour</Button>
-              <Button onClick={publish} disabled={platforms.length === 0 || (!scheduleDate && !publishNow)}>
+              <Button onClick={addToCalendar} disabled={platforms.length === 0 || (!scheduleDate && !publishNow)}>
                 {generating ? <><RefreshCw className="w-4 h-4 animate-spin" /> Publication...</> : publishNow ? <><Send className="w-4 h-4" /> Publier maintenant</> : <><Calendar className="w-4 h-4" /> Planifier</>}
               </Button>
             </div>
@@ -918,19 +953,70 @@ const BackgroundRemover = ({ assistant }) => {
   );
 };
 
+
 // ============ CALENDAR ============
 const CalendarPage = ({ assistant, setPage }) => {
-  const [date, setDate] = useState(new Date(2025, 4, 1));
+  const [date, setDate] = useState(new Date());
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-  const posts = [
-    { day: 15, title: 'Lancement', status: 'scheduled' },
-    { day: 20, title: 'Promo', status: 'draft' },
-    { day: 25, title: 'Event', status: 'scheduled' },
-    { day: 30, title: 'Finale UCL', status: 'published' },
-    { day: 31, title: 'Finale UCL', status: 'scheduled' }
-  ];
+  // Charger les posts depuis Google Calendar
+    const loadCalendar = async () => {
+        setLoading(true);
+        try {
+        const response = await fetch("https://n8n.nightcrow.fr/webhook/Get_calendar", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            month: date.getMonth() + 1,
+            year: date.getFullYear()
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error("Erreur serveur: " + response.status);
+        }
+        
+        const text = await response.text();
+        if (!text) {
+            setPosts([]);
+            return;
+        }
+        
+        const result = JSON.parse(text);
+        const data = Array.isArray(result) ? result : [result];
+        
+        const formattedPosts = data.map(event => {
+            const startDate = event.start?.dateTime || event.start?.date;
+            const eventDate = new Date(startDate);
+            
+            return {
+            day: eventDate.getDate(),
+            month: eventDate.getMonth(),
+            year: eventDate.getFullYear(),
+            title: event.summary || 'Sans titre',
+            status: 'scheduled'
+            };
+        });
+        
+        console.log("FORMATTED:", formattedPosts);
+        console.log("CURRENT VIEW - month:", date.getMonth(), "year:", date.getFullYear());
+        
+        setPosts(formattedPosts);
+        
+        } catch (error) {
+        console.log("ERREUR:", error);
+        setPosts([]);
+        } finally {
+        setLoading(false);
+        }
+    };
+  // Charger au démarrage et quand le mois change
+  useEffect(() => {
+    loadCalendar();
+  }, [date]);
 
   const getDays = () => {
     const year = date.getFullYear();
@@ -954,7 +1040,10 @@ const CalendarPage = ({ assistant, setPage }) => {
             <h1 className="text-2xl font-bold">Calendrier de publication</h1>
             <p className="text-gray-600">Planifiez vos contenus à l'avance</p>
           </div>
-          <Button onClick={() => setPage('power-john-0')}><Plus className="w-4 h-4" /> Nouveau post</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={loadCalendar}><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Actualiser</Button>
+            <Button onClick={() => setPage('power-john-0')}><Plus className="w-4 h-4" /> Nouveau post</Button>
+          </div>
         </div>
 
         <Card className="mb-6">
@@ -963,22 +1052,29 @@ const CalendarPage = ({ assistant, setPage }) => {
             <h2 className="text-xl font-semibold">{months[date.getMonth()]} {date.getFullYear()}</h2>
             <button onClick={() => setDate(new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="p-2 hover:bg-gray-100 rounded-lg"><ChevronRight className="w-5 h-5" /></button>
           </div>
-          <div className="grid grid-cols-7">
-            {days.map(d => <div key={d} className="p-3 text-center font-medium text-gray-500 border-b bg-gray-50">{d}</div>)}
-            {getDays().map((day, i) => {
-              const dayPosts = posts.filter(p => p.day === day.d.getDate() && day.current);
-              return (
-                <div key={i} className={`min-h-24 p-2 border-b border-r ${day.current ? 'bg-white' : 'bg-gray-50'}`}>
-                  <p className={`text-sm ${day.current ? 'text-gray-900' : 'text-gray-400'}`}>{day.d.getDate()}</p>
-                  {dayPosts.map((p, j) => (
-                    <div key={j} className={`mt-1 p-1 rounded text-xs text-white truncate ${p.status === 'published' ? 'bg-green-500' : p.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`}>
-                      🏆 {p.title}
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
+          {loading ? (
+            <div className="p-12 text-center text-gray-500">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
+              <p>Chargement du calendrier...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-7">
+              {days.map(d => <div key={d} className="p-3 text-center font-medium text-gray-500 border-b bg-gray-50">{d}</div>)}
+              {getDays().map((day, i) => {
+                const dayPosts = posts.filter(p => p.day === day.d.getDate() && p.month === day.d.getMonth() && p.year === day.d.getFullYear() && day.current);
+                return (
+                  <div key={i} className={`min-h-24 p-2 border-b border-r ${day.current ? 'bg-white' : 'bg-gray-50'}`}>
+                    <p className={`text-sm ${day.current ? 'text-gray-900' : 'text-gray-400'}`}>{day.d.getDate()}</p>
+                    {dayPosts.map((p, j) => (
+                      <div key={j} className={`mt-1 p-1 rounded text-xs text-white truncate cursor-pointer hover:opacity-80 ${p.status === 'published' ? 'bg-green-500' : p.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`} title={p.caption}>
+                        📅 {p.title}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </Card>
         <div className="flex items-center gap-6 text-sm">
           <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-500 rounded" /> Publié</div>
