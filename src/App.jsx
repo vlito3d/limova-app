@@ -583,26 +583,51 @@ const PostCreator = ({ assistant, setPage }) => {
     { id: 'story', label: 'Story (9:16)', desc: 'Stories' }
   ];
 
-  const generate = async () => {
+    const generate = async () => {
+    if (!description.trim()) return;
     setGenerating(true);
-    await new Promise(r => setTimeout(r, 2500));
-    const captions = {
-      short: "⚽ Finale Champions League\n31 mai 2025 • 21h\n#Football #UCL",
-      standard: "⚽ Ne manquez pas la finale de la Ligue des Champions !\n\n📅 31 mai 2025 à 21h\n🏆 PSG vs Inter Milan\n\n#ChampionsLeague #Football",
-      detailed: "⚽ La plus grande soirée de football européen arrive !\n\nLe 31 mai 2025 à 21h, assistez à la finale de la Ligue des Champions : PSG vs Inter Milan.\n\n🏟️ Une ambiance de folie\n⭐ Les meilleures stars\n🏆 Un seul vainqueur\n\n#ChampionsLeague #UCL #PSG #Inter"
+    
+    try {
+        const response = await fetch("https://n8n.nightcrow.fr/webhook/john/generate-post", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description, dimension, textLength }),
+        });
+        
+        if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+        }
+        
+        const text = await response.text();
+        if (!text) {
+        throw new Error("Réponse vide du webhook");
+        }
+        
+        const result = JSON.parse(text);
+        const data = Array.isArray(result) ? result[0] : result;
+        
+        // ✅ VOIR L'IMAGE URL
+        console.log("IMAGE URL:", data.imageUrl);
+        
+        const fullCaption = data.caption + '\n\n' + data.hashtags;
+        
+        setCaption(fullCaption);
+        setPost({ 
+        caption: fullCaption,
+        hashtags: data.hashtags,
+        imageUrl: data.imageUrl,
+        date: new Date().toLocaleDateString('fr-FR') 
+        });
+        
+        setStep(2);
+        
+    } catch (error) {
+        console.log("ERREUR:", error);
+        alert("Erreur: " + error.message);
+    } finally {
+        setGenerating(false);
+    }
     };
-    setCaption(captions[textLength]);
-    setPost({ caption: captions[textLength], date: new Date().toLocaleDateString('fr-FR') });
-    setGenerating(false);
-    setStep(2);
-  };
-
-  const publish = async () => {
-    setGenerating(true);
-    await new Promise(r => setTimeout(r, 2000));
-    setGenerating(false);
-    setStep(4);
-  };
 
   const togglePlatform = (id) => {
     const p = SOCIAL_PLATFORMS.find(x => x.id === id);
@@ -692,19 +717,29 @@ const PostCreator = ({ assistant, setPage }) => {
             </div>
 
             <div className="flex gap-8">
-              <div className="flex-shrink-0">
-                <div className="w-72 h-72 bg-gradient-to-br from-blue-900 via-purple-900 to-red-900 rounded-xl flex items-center justify-center text-white relative overflow-hidden shadow-xl">
-                  <div className="text-center p-6 relative z-10">
-                    <p className="text-xs tracking-widest opacity-80 mb-2">UEFA CHAMPIONS LEAGUE</p>
-                    <p className="text-4xl font-black mb-4">FINALE</p>
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                      <div className="w-14 h-14 bg-white/20 rounded-full" />
-                      <span className="text-xl font-bold">VS</span>
-                      <div className="w-14 h-14 bg-white/20 rounded-full" />
+<              div className="flex-shrink-0">
+                <div className="w-72 h-72 rounded-xl overflow-hidden shadow-xl bg-gray-100">
+                  {post.imageUrl ? (
+                    <img 
+                      src={post.imageUrl} 
+                      alt="Post généré" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-900 via-purple-900 to-red-900 flex items-center justify-center text-white">
+                      <div className="text-center p-6 relative z-10">
+                        <p className="text-xs tracking-widest opacity-80 mb-2">UEFA CHAMPIONS LEAGUE</p>
+                        <p className="text-4xl font-black mb-4">FINALE</p>
+                        <div className="flex items-center justify-center gap-4 mb-4">
+                          <div className="w-14 h-14 bg-white/20 rounded-full" />
+                          <span className="text-xl font-bold">VS</span>
+                          <div className="w-14 h-14 bg-white/20 rounded-full" />
+                        </div>
+                        <p className="text-lg font-bold">31 MAI 2025</p>
+                        <p className="opacity-80">21H00</p>
+                      </div>
                     </div>
-                    <p className="text-lg font-bold">31 MAI 2025</p>
-                    <p className="opacity-80">21H00</p>
-                  </div>
+                  )}
                 </div>
                 <div className="flex gap-2 mt-3">
                   <Button variant="outline" size="sm" className="flex-1"><Download className="w-4 h-4" /> Télécharger</Button>

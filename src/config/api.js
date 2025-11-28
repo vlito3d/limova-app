@@ -3,7 +3,7 @@ export const API_CONFIG = {
   // URL de base de ton instance n8n
   // En développement : http://localhost:5678
   // En production : https://ton-n8n.railway.app
-  baseUrl: import.meta.env.VITE_N8N_URL || 'http://localhost:5678',
+  baseUrl: import.meta.env.VITE_N8N_URL || 'https://n8n.nightcrow.fr',
   
   // Endpoints pour chaque assistant
   endpoints: {
