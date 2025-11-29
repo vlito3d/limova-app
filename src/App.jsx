@@ -466,28 +466,60 @@ const AssistantChat = ({ assistant }) => {
   const [messages, setMessages] = useState([{ role: 'assistant', content: assistant.greeting }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sessionId] = useState(() => 'session-' + Date.now());
 
+
+  
   const send = async () => {
     if (!input.trim()) return;
-    setMessages(prev => [...prev, { role: 'user', content: input }]);
+    
+    const userMessage = input;
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setInput('');
     setLoading(true);
     
-    await new Promise(r => setTimeout(r, 1500));
-    
-    const responses = {
-      john: "Je peux vous aider à créer du contenu engageant ! Voulez-vous que je génère un post pour vos réseaux sociaux ?",
-      mickael: "Je vais vous aider avec votre relation client. Souhaitez-vous créer un chatbot ou analyser des conversations ?",
-      lou: "Je vais analyser votre SEO. Donnez-moi l'URL de votre site et je lance un audit complet.",
-      elio: "Je suis prêt pour la prospection LinkedIn ! Voulez-vous lancer une nouvelle campagne ?",
-      tom: "Envoyez-moi un fichier audio et je le transcris en quelques secondes.",
-      charly: "Je suis là pour vous aider ! Dites-moi ce dont vous avez besoin.",
-      manue: "Je peux créer une facture ou un devis. De quoi avez-vous besoin ?",
-      julia: "Je vais rédiger vos documents juridiques. Quel type de document vous faut-il ?"
-    };
-    
-    setMessages(prev => [...prev, { role: 'assistant', content: responses[assistant.id] || "Comment puis-je vous aider ?" }]);
-    setLoading(false);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/3e289c98-5a39-4f0d-ab0f-1dcc39f88c90/chat", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          sessionId: sessionId,
+          assistantId: assistant.id,
+          assistantName: assistant.name,
+          timestamp: new Date().toISOString()
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const text = await response.text();
+      if (!text) {
+        throw new Error("Réponse vide");
+      }
+      
+      const result = JSON.parse(text);
+      const data = Array.isArray(result) ? result[0] : result;
+      
+      console.log("RÉPONSE CHATBOT:", data);
+      
+      const botResponse = data.response || data.message || data.text || data.output || "Je n'ai pas compris, pouvez-vous reformuler ?";
+      const imageUrl = data.Url || data.url || data.imageUrl || null;
+      
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: botResponse,
+        imageUrl: imageUrl
+      }]);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      setMessages(prev => [...prev, { role: 'assistant', content: "Désolé, une erreur s'est produite. Réessayez." }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -509,8 +541,41 @@ const AssistantChat = ({ assistant }) => {
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
               {msg.role === 'assistant' && <Avatar assistant={assistant} size="sm" />}
-              <div className={`max-w-[70%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white border shadow-sm rounded-bl-none'}`}>
-                {msg.content}
+              <div className={`max-w-[70%] rounded-2xl overflow-hidden ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white border shadow-sm rounded-bl-none'}`}>
+                {/* Texte */}
+                <div className="p-4">{msg.content}</div>
+                
+                {/* Image si présente */}
+                {msg.imageUrl && (
+                  <div className="border-t">
+                    <img 
+                      src={msg.imageUrl} 
+                      alt="Image générée" 
+                      className="w-full max-h-80 object-contain cursor-pointer hover:opacity-90"
+                      onClick={() => window.open(msg.imageUrl, '_blank')}
+                    />
+                    <div className="p-2 flex gap-2 bg-gray-50">
+                      <button 
+                        onClick={() => window.open(msg.imageUrl, '_blank')}
+                        className="flex-1 text-sm text-blue-600 hover:bg-blue-50 py-2 rounded-lg flex items-center justify-center gap-1"
+                      >
+                        <Eye className="w-4 h-4" /> Voir
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = msg.imageUrl;
+                          link.download = 'image.png';
+                          link.target = '_blank';
+                          link.click();
+                        }}
+                        className="flex-1 text-sm text-blue-600 hover:bg-blue-50 py-2 rounded-lg flex items-center justify-center gap-1"
+                      >
+                        <Download className="w-4 h-4" /> Télécharger
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -551,7 +616,7 @@ const AssistantChat = ({ assistant }) => {
                 <button className="p-2 hover:bg-gray-200 rounded-lg"><Mic className="w-5 h-5 text-gray-500" /></button>
               </div>
             </div>
-            <button onClick={send} disabled={!input.trim()} className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white hover:bg-blue-700 disabled:opacity-50">
+            <button onClick={send} disabled={!input.trim() || loading} className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white hover:bg-blue-700 disabled:opacity-50">
               <Send className="w-5 h-5" />
             </button>
           </div>
@@ -584,6 +649,19 @@ const PostCreator = ({ assistant, setPage }) => {
   const [generatingLegend, setGeneratingLegend] = useState(false);
   const [legendLength, setLegendLength] = useState('court');
   
+  // Charger l'image depuis la bibliothèque si présente
+  useEffect(() => {
+    const savedImage = localStorage.getItem('postImage');
+    if (savedImage) {
+      const imageData = JSON.parse(savedImage);
+      setManualImagePreview(imageData.imageUrl);
+      setManualTitle(imageData.title || '');
+      setManualContent(imageData.caption || '');
+      setMode('manual');
+      localStorage.removeItem('postImage');
+    }
+  }, []);
+
 
   const dimensions = [
     { id: 'square', label: 'Carré (1:1)', desc: 'Instagram, Facebook' },
@@ -1233,18 +1311,32 @@ const CalendarPage = ({ assistant, setPage }) => {
       console.log("RAW DATA:", data);
       
       // Les données sont déjà formatées par n8n, on les utilise directement
-      const formattedPosts = data.map(event => ({
-        id: event.id,
-        day: event.day,
-        month: event.month,
-        year: event.year,
-        title: event.title || 'Sans titre',
-        status: event.status || 'scheduled',
-        caption: event.caption || '',
-        description: event.caption || '',
-        imageUrl: event.imageUrl || null,
-        time: event.time || '00:00'
-      }));
+      const formattedPosts = data.map(event => {
+        // Extraire l'image URL de la caption si pas dans imageUrl
+        let imageUrl = event.imageUrl || null;
+        
+        if (!imageUrl && event.caption) {
+          // Chercher URL imgBB ou Google Drive
+          const imgbbMatch = event.caption.match(/https:\/\/i\.ibb\.co\/[^\s]+/i);
+          const googleMatch = event.caption.match(/https:\/\/lh3\.googleusercontent\.com\/d\/[^\s]+/i);
+          const driveMatch = event.caption.match(/https:\/\/drive\.google\.com\/[^\s]+/i);
+          
+          imageUrl = imgbbMatch?.[0] || googleMatch?.[0] || driveMatch?.[0] || null;
+        }
+        
+        return {
+          id: event.id,
+          day: event.day,
+          month: event.month,
+          year: event.year,
+          title: event.title || 'Sans titre',
+          status: event.status || 'scheduled',
+          caption: event.caption || '',
+          description: event.caption || '',
+          imageUrl: imageUrl,
+          time: event.time || '00:00'
+        };
+      });
       
       console.log("FORMATTED:", formattedPosts);
       setPosts(formattedPosts);
@@ -1532,7 +1624,7 @@ const CalendarPage = ({ assistant, setPage }) => {
   );
 };
 
-// ============ ALL CONTENTS ============
+
 // ============ ALL CONTENTS ============
 const AllContents = ({ assistant, setPage }) => {
   const [filter, setFilter] = useState('all');
@@ -1540,6 +1632,16 @@ const AllContents = ({ assistant, setPage }) => {
   const [loading, setLoading] = useState(true);
   const [currentPath, setCurrentPath] = useState('/');
   const [pathHistory, setPathHistory] = useState(['/']);
+  const [selectedContent, setSelectedContent] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectMode, setSelectMode] = useState(false);
+  
+  // Champs éditables
+  const [editTitle, setEditTitle] = useState('');
+  const [editCaption, setEditCaption] = useState('');
+  const [editStatus, setEditStatus] = useState('draft');
 
   // Charger les contenus depuis Google Drive
   const loadContents = async (path = '/') => {
@@ -1602,7 +1704,137 @@ const AllContents = ({ assistant, setPage }) => {
     }
   };
 
-  // Filtrer les contenus (exclure les dossiers du filtre de statut)
+  // Ouvrir le mode édition
+  const openEdit = () => {
+    setEditTitle(selectedContent.title || selectedContent.name || '');
+    setEditCaption(selectedContent.caption || selectedContent.description || '');
+    setEditStatus(selectedContent.status || 'draft');
+    setEditMode(true);
+  };
+
+  // Sauvegarder les modifications
+  const saveChanges = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Update_library", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedContent.id,
+          title: editTitle,
+          caption: editCaption,
+          status: editStatus,
+          path: currentPath
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      console.log("MODIFICATION ENREGISTRÉE");
+      
+      setSelectedContent(null);
+      setEditMode(false);
+      loadContents(currentPath);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Supprimer un contenu
+  const deleteContent = async () => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce contenu ?")) return;
+    
+    setSaving(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Delete_library", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedContent.id,
+          path: currentPath
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      console.log("CONTENU SUPPRIMÉ");
+      
+      setSelectedContent(null);
+      setEditMode(false);
+      loadContents(currentPath);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  // Toggle sélection d'un élément
+  const toggleSelect = (item) => {
+    if (selectedItems.find(i => i.id === item.id)) {
+      setSelectedItems(selectedItems.filter(i => i.id !== item.id));
+    } else {
+      setSelectedItems([...selectedItems, item]);
+    }
+  };
+
+  // Tout sélectionner / Tout désélectionner
+  const toggleSelectAll = () => {
+    const files = contents.filter(c => c.type !== 'folder');
+    if (selectedItems.length === files.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(files);
+    }
+  };
+
+  // Supprimer les éléments sélectionnés
+  const deleteSelected = async () => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedItems.length} élément(s) ?`)) return;
+    
+    setSaving(true);
+    try {
+      for (const item of selectedItems) {
+        await fetch("https://n8n.nightcrow.fr/webhook/Delete_library", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: item.id,
+            path: currentPath
+          }),
+        });
+      }
+      
+      console.log("ÉLÉMENTS SUPPRIMÉS:", selectedItems.length);
+      
+      setSelectedItems([]);
+      setSelectMode(false);
+      loadContents(currentPath);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Annuler la sélection
+  const cancelSelection = () => {
+    setSelectedItems([]);
+    setSelectMode(false);
+  };
+
+  // Filtrer les contenus
   const filtered = contents.filter(c => {
     if (c.type === 'folder') return true;
     return filter === 'all' || c.status === filter;
@@ -1623,10 +1855,35 @@ const AllContents = ({ assistant, setPage }) => {
             <p className="text-gray-600">Gérez tous vos posts créés</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => loadContents(currentPath)}>
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Actualiser
-            </Button>
-            <Button onClick={() => setPage('power-john-0')}><Plus className="w-4 h-4" /> Nouveau post</Button>
+            {selectMode ? (
+              <>
+                <Button variant="outline" onClick={toggleSelectAll}>
+                  <Check className="w-4 h-4" /> {selectedItems.length === contents.filter(c => c.type !== 'folder').length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                </Button>
+                <Button variant="outline" onClick={cancelSelection}>
+                  <X className="w-4 h-4" /> Annuler
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="text-red-500 hover:bg-red-50" 
+                  onClick={deleteSelected}
+                  disabled={selectedItems.length === 0 || saving}
+                >
+                  {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} 
+                  Supprimer ({selectedItems.length})
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => setSelectMode(true)}>
+                  <Check className="w-4 h-4" /> Sélectionner
+                </Button>
+                <Button variant="outline" onClick={() => loadContents(currentPath)}>
+                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Actualiser
+                </Button>
+                <Button onClick={() => setPage('power-john-0')}><Plus className="w-4 h-4" /> Nouveau post</Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -1647,13 +1904,13 @@ const AllContents = ({ assistant, setPage }) => {
         <Card className="p-4 mb-6">
           <div className="flex gap-2">
             {[
-              { id: 'all', label: 'Tous' }, 
-              { id: 'published', label: 'Publiés', color: 'green' }, 
-              { id: 'scheduled', label: 'Planifiés', color: 'blue' }, 
-              { id: 'draft', label: 'Brouillons', color: 'gray' }
+              { id: 'all', label: 'Tous', color: null }, 
+              { id: 'published', label: 'Publiés', color: 'bg-green-500' }, 
+              { id: 'scheduled', label: 'Planifiés', color: 'bg-blue-500' }, 
+              { id: 'draft', label: 'Brouillons', color: 'bg-gray-400' }
             ].map(f => (
               <button key={f.id} onClick={() => setFilter(f.id)} className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${filter === f.id ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
-                {f.color && <div className={`w-2 h-2 rounded-full bg-${f.color}-500`} />}
+                {f.color && <div className={`w-2 h-2 rounded-full ${f.color}`} />}
                 {f.label} ({countByStatus(f.id)})
               </button>
             ))}
@@ -1676,10 +1933,27 @@ const AllContents = ({ assistant, setPage }) => {
             {filtered.map((c, index) => (
               <Card 
                 key={c.id || index} 
-                className={`overflow-hidden group ${c.type === 'folder' ? 'cursor-pointer' : ''}`} 
+                className={`overflow-hidden group cursor-pointer relative ${selectedItems.find(i => i.id === c.id) ? 'ring-2 ring-blue-500' : ''}`} 
                 hover
-                onClick={() => c.type === 'folder' && openFolder(c.path, c.name)}
+                onClick={() => {
+                  if (c.type === 'folder') {
+                    openFolder(c.path, c.name);
+                  } else if (selectMode) {
+                    toggleSelect(c);
+                  } else {
+                    setSelectedContent(c);
+                  }
+                }}
               >
+                {/* Checkbox de sélection */}
+                {selectMode && c.type !== 'folder' && (
+                  <div 
+                    className={`absolute top-2 left-2 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedItems.find(i => i.id === c.id) ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'}`}
+                    onClick={(e) => { e.stopPropagation(); toggleSelect(c); }}
+                  >
+                    {selectedItems.find(i => i.id === c.id) && <Check className="w-4 h-4 text-white" />}
+                  </div>
+                )}
                 {/* Affichage pour les dossiers */}
                 {c.type === 'folder' ? (
                   <div className="p-8 flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100">
@@ -1698,7 +1972,7 @@ const AllContents = ({ assistant, setPage }) => {
                       )}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                         <div className="flex gap-2">
-                          <button className="p-2 bg-white rounded-full hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); window.open(c.imageUrl || c.url, '_blank'); }}>
+                          <button className="p-2 bg-white rounded-full hover:bg-gray-100">
                             <Eye className="w-5 h-5" />
                           </button>
                           <button className="p-2 bg-white rounded-full hover:bg-gray-100">
@@ -1733,6 +2007,133 @@ const AllContents = ({ assistant, setPage }) => {
           </div>
         )}
       </div>
+
+      {/* POPUP APERÇU / MODIFICATION */}
+      {selectedContent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setSelectedContent(null); setEditMode(false); }}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Image */}
+            {(selectedContent.imageUrl || selectedContent.thumbnailUrl) && (
+              <img src={selectedContent.imageUrl || selectedContent.thumbnailUrl} alt="Contenu" className="w-full h-72 object-cover" />
+            )}
+            
+            {/* Contenu */}
+            <div className="p-6">
+              {!editMode ? (
+                <>
+                  {/* MODE LECTURE */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold">{selectedContent.title || selectedContent.name}</h3>
+                    <span className={`px-3 py-1 rounded-full text-xs text-white ${selectedContent.status === 'published' ? 'bg-green-500' : selectedContent.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`}>
+                      {selectedContent.status === 'published' ? 'Publié' : selectedContent.status === 'scheduled' ? 'Planifié' : 'Brouillon'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                    <span>📅 {selectedContent.date || selectedContent.createdAt || 'Non daté'}</span>
+                    {selectedContent.platform && (
+                      <span className="flex items-center gap-1">
+                        <Instagram className="w-4 h-4" /> {selectedContent.platform}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {(selectedContent.caption || selectedContent.description) && (
+                    <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                      <label className="font-semibold text-sm block mb-2">Légende</label>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedContent.caption || selectedContent.description}</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1" onClick={() => window.open(selectedContent.imageUrl || selectedContent.url, '_blank')}>
+                      <Download className="w-4 h-4" /> Télécharger
+                    </Button>
+                    <Button variant="outline" className="flex-1" onClick={openEdit}>
+                      <Edit className="w-4 h-4" /> Modifier
+                    </Button>
+                    <Button variant="outline" className="flex-1 text-red-500 hover:bg-red-50" onClick={deleteContent}>
+                      <Trash2 className="w-4 h-4" /> Supprimer
+                    </Button>
+                  </div>
+                  
+                  <Button 
+                    className="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600" 
+                    onClick={() => {
+                      localStorage.setItem('postImage', JSON.stringify({
+                        imageUrl: selectedContent.imageUrl || selectedContent.thumbnailUrl,
+                        title: selectedContent.title || selectedContent.name,
+                        caption: selectedContent.caption || ''
+                      }));
+                      setSelectedContent(null);
+                      setPage('power-john-0');
+                    }}
+                  >
+                    <Send className="w-4 h-4" /> Créer un post avec cette image
+                  </Button>
+                  
+                  <Button className="w-full mt-2" variant="outline" onClick={() => setSelectedContent(null)}>
+                    <X className="w-4 h-4" /> Fermer
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* MODE ÉDITION */}
+                  <h3 className="text-xl font-bold mb-4">✏️ Modifier le contenu</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Titre</label>
+                      <input 
+                        type="text" 
+                        value={editTitle} 
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Légende / Description</label>
+                      <textarea 
+                        value={editCaption} 
+                        onChange={(e) => setEditCaption(e.target.value)}
+                        rows={5}
+                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Statut</label>
+                      <select 
+                        value={editStatus} 
+                        onChange={(e) => setEditStatus(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                      >
+                        <option value="draft">📝 Brouillon</option>
+                        <option value="scheduled">📅 Planifié</option>
+                        <option value="published">✓ Publié</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 mt-6">
+                    <Button variant="outline" className="flex-1" onClick={() => setEditMode(false)}>
+                      <X className="w-4 h-4" /> Annuler
+                    </Button>
+                    <Button className="flex-1" onClick={saveChanges} disabled={saving}>
+                      {saving ? (
+                        <><RefreshCw className="w-4 h-4 animate-spin" /> Enregistrement...</>
+                      ) : (
+                        <><Check className="w-4 h-4" /> Enregistrer</>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
