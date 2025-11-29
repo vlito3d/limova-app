@@ -575,6 +575,15 @@ const PostCreator = ({ assistant, setPage }) => {
   const [scheduleTime, setScheduleTime] = useState('10:00');
   const [publishNow, setPublishNow] = useState(false);
   const [caption, setCaption] = useState('');
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualContent, setManualContent] = useState('');
+  const [manualImage, setManualImage] = useState(null);
+  const [manualImagePreview, setManualImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [generatingLegend, setGeneratingLegend] = useState(false);
+  const [legendLength, setLegendLength] = useState('court');
+  
 
   const dimensions = [
     { id: 'square', label: 'Carré (1:1)', desc: 'Instagram, Facebook' },
@@ -628,6 +637,143 @@ const PostCreator = ({ assistant, setPage }) => {
         setGenerating(false);
     }
     };
+
+ // Gérer l'upload d'image
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setManualImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setManualImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Envoyer le post manuel au webhook
+  const submitManualPost = async () => {
+    if (!manualTitle.trim() || !manualContent.trim()) {
+      alert("Veuillez remplir le titre et le contenu");
+      return;
+    }
+    
+    setUploading(true);
+    
+    try {
+      // Convertir l'image en base64 si elle existe
+      let imageBase64 = null;
+      if (manualImage) {
+        imageBase64 = manualImagePreview;
+      }
+      
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Input_image", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: manualTitle,
+          content: manualContent,
+          image: imageBase64,
+          imageName: manualImage?.name || null,
+          createdAt: new Date().toISOString()
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const result = await response.json();
+      console.log("RÉPONSE WEBHOOK:", result);
+      
+      // Mettre à jour le post et passer à l'étape 2
+      setCaption(manualContent);
+      setPost({
+        caption: manualContent,
+        title: manualTitle,
+        imageUrl: result.imageUrl || manualImagePreview,
+        hashtags: result.hashtags || '',
+        date: new Date().toLocaleDateString('fr-FR')
+      });
+      
+      setStep(2);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+  // Sauvegarder sur Google Drive
+  const saveToGoogleDrive = async () => {
+    setSaving(true);
+    
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Save_google_drive", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caption: caption,
+          imageUrl: post.imageUrl,
+          title: post.title || 'Post Limova',
+          hashtags: post.hashtags || '',
+          createdAt: new Date().toISOString()
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const result = await response.json();
+      console.log("SAUVEGARDÉ:", result);
+      
+      alert("✅ Sauvegardé sur Google Drive !");
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  // Générer une légende
+  const generateLegend = async () => {
+    setGeneratingLegend(true);
+    
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Generate_legende", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentCaption: caption,
+          imageUrl: post.imageUrl,
+          length: legendLength,
+          title: post.title || '',
+          createdAt: new Date().toISOString()
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const result = await response.json();
+      const data = Array.isArray(result) ? result[0] : result;
+      
+      console.log("LÉGENDE GÉNÉRÉE:", data);
+      
+      // Mettre à jour la légende
+      setCaption(data.Captions || '');
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setGeneratingLegend(false);
+    }
+  };   
 
     const publish = async () => {
         setGenerating(true);
@@ -690,7 +836,7 @@ const PostCreator = ({ assistant, setPage }) => {
 
         <div className="mb-8"><Steps steps={['Création', 'Aperçu', 'Planification']} current={step} /></div>
 
-        {/* Step 1 */}
+{/* Step 1 */}
         {step === 1 && (
           <Card className="p-6">
             <div className="flex justify-center mb-8">
@@ -736,13 +882,73 @@ const PostCreator = ({ assistant, setPage }) => {
               </div>
             ) : (
               <div className="space-y-6">
-                <Input label="Titre du post" placeholder="Mon super post" />
-                <Textarea label="Contenu" placeholder="Écrivez votre post..." rows={6} />
-                <div className="border-2 border-dashed rounded-xl p-12 text-center hover:border-blue-300 cursor-pointer">
-                  <Upload className="w-10 h-10 mx-auto text-gray-400 mb-3" />
-                  <p className="text-gray-600">Cliquez pour télécharger une image</p>
+                <div>
+                  <label className="font-semibold block mb-2">Titre du post</label>
+                  <input 
+                    type="text"
+                    value={manualTitle}
+                    onChange={(e) => setManualTitle(e.target.value)}
+                    placeholder="Mon super post"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
                 </div>
-                <Button className="w-full py-4">Continuer</Button>
+                
+                <div>
+                  <label className="font-semibold block mb-2">Contenu</label>
+                  <textarea 
+                    value={manualContent}
+                    onChange={(e) => setManualContent(e.target.value)}
+                    placeholder="Écrivez votre post..."
+                    rows={6}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="font-semibold block mb-2">Image</label>
+                  <div 
+                    className="border-2 border-dashed rounded-xl p-8 text-center hover:border-blue-300 cursor-pointer relative overflow-hidden"
+                    onClick={() => document.getElementById('imageInput').click()}
+                  >
+                    {manualImagePreview ? (
+                      <div className="relative">
+                        <img src={manualImagePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setManualImage(null); setManualImagePreview(null); }}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        <p className="text-sm text-gray-500 mt-2">{manualImage?.name}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="w-10 h-10 mx-auto text-gray-400 mb-3" />
+                        <p className="text-gray-600">Cliquez pour télécharger une image</p>
+                        <p className="text-sm text-gray-400 mt-1">PNG, JPG, GIF jusqu'à 10MB</p>
+                      </>
+                    )}
+                    <input 
+                      type="file" 
+                      id="imageInput"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={submitManualPost} 
+                  disabled={!manualTitle.trim() || !manualContent.trim() || uploading}
+                  className="w-full py-4"
+                >
+                  {uploading ? (
+                    <><RefreshCw className="w-5 h-5 animate-spin" /> Envoi en cours...</>
+                  ) : (
+                    <>Continuer</>
+                  )}
+                </Button>
               </div>
             )}
           </Card>
@@ -791,7 +997,31 @@ const PostCreator = ({ assistant, setPage }) => {
               </div>
 
               <div className="flex-1">
-                <label className="font-semibold block mb-2">Légende</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="font-semibold">Légende</label>
+                  <div className="flex items-center gap-2">
+                    <select 
+                      value={legendLength} 
+                      onChange={(e) => setLegendLength(e.target.value)}
+                      className="text-sm border rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="court">Court</option>
+                      <option value="longue">Longue</option>
+                    </select>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={generateLegend}
+                      disabled={generatingLegend}
+                    >
+                      {generatingLegend ? (
+                        <><RefreshCw className="w-4 h-4 animate-spin" /> Génération...</>
+                      ) : (
+                        <><Sparkles className="w-4 h-4" /> Générer</>
+                      )}
+                    </Button>
+                  </div>
+                </div>
                 <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={8} />
                 <p className="text-sm text-gray-400 mt-2">Créé le {post.date}</p>
               </div>
@@ -800,7 +1030,9 @@ const PostCreator = ({ assistant, setPage }) => {
             <div className="flex justify-between mt-8 pt-6 border-t">
               <Button variant="ghost" onClick={() => setStep(1)}><ChevronLeft className="w-4 h-4" /> Retour</Button>
               <div className="flex gap-3">
-                <Button variant="outline">Sauvegarder</Button>
+                <Button variant="outline" onClick={saveToGoogleDrive} disabled={saving}>
+                {saving ? <><RefreshCw className="w-4 h-4 animate-spin" /> Sauvegarde...</> : <>Sauvegarder</>}
+                </Button>
                 <Button onClick={() => setStep(3)}>Publier <ChevronRight className="w-4 h-4" /></Button>
               </div>
             </div>
@@ -959,60 +1191,148 @@ const CalendarPage = ({ assistant, setPage }) => {
   const [date, setDate] = useState(new Date());
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  // Champs éditables
+  const [editTitle, setEditTitle] = useState('');
+  const [editCaption, setEditCaption] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editTime, setEditTime] = useState('');
+  
   const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
   // Charger les posts depuis Google Calendar
-    const loadCalendar = async () => {
-        setLoading(true);
-        try {
-        const response = await fetch("https://n8n.nightcrow.fr/webhook/Get_calendar", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-            month: date.getMonth() + 1,
-            year: date.getFullYear()
-            }),
-        });
-        
-        if (!response.ok) {
-            throw new Error("Erreur serveur: " + response.status);
-        }
-        
-        const text = await response.text();
-        if (!text) {
-            setPosts([]);
-            return;
-        }
-        
-        const result = JSON.parse(text);
-        const data = Array.isArray(result) ? result : [result];
-        
-        const formattedPosts = data.map(event => {
-            const startDate = event.start?.dateTime || event.start?.date;
-            const eventDate = new Date(startDate);
-            
-            return {
-            day: eventDate.getDate(),
-            month: eventDate.getMonth(),
-            year: eventDate.getFullYear(),
-            title: event.summary || 'Sans titre',
-            status: 'scheduled'
-            };
-        });
-        
-        console.log("FORMATTED:", formattedPosts);
-        console.log("CURRENT VIEW - month:", date.getMonth(), "year:", date.getFullYear());
-        
-        setPosts(formattedPosts);
-        
-        } catch (error) {
-        console.log("ERREUR:", error);
+  const loadCalendar = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Get_calendar", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          month: date.getMonth() + 1,
+          year: date.getFullYear()
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const text = await response.text();
+      if (!text) {
         setPosts([]);
-        } finally {
-        setLoading(false);
-        }
-    };
+        return;
+      }
+      
+      const result = JSON.parse(text);
+      const data = Array.isArray(result) ? result : [result];
+      
+      console.log("RAW DATA:", data);
+      
+      // Les données sont déjà formatées par n8n, on les utilise directement
+      const formattedPosts = data.map(event => ({
+        id: event.id,
+        day: event.day,
+        month: event.month,
+        year: event.year,
+        title: event.title || 'Sans titre',
+        status: event.status || 'scheduled',
+        caption: event.caption || '',
+        description: event.caption || '',
+        imageUrl: event.imageUrl || null,
+        time: event.time || '00:00'
+      }));
+      
+      console.log("FORMATTED:", formattedPosts);
+      setPosts(formattedPosts);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ouvrir le mode édition
+  const openEdit = () => {
+    setEditTitle(selectedPost.title);
+    setEditCaption(selectedPost.description);
+    setEditDate(`${selectedPost.year}-${String(selectedPost.month + 1).padStart(2, '0')}-${String(selectedPost.day).padStart(2, '0')}`);
+    setEditTime(selectedPost.time);
+    setEditMode(true);
+  };
+
+  // Enregistrer les modifications
+  const saveChanges = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Update_calendar", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: selectedPost.id,
+          title: editTitle,
+          description: editCaption,
+          date: editDate,
+          time: editTime,
+          imageUrl: selectedPost.imageUrl
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      console.log("MODIFICATION ENREGISTRÉE");
+      
+      setSelectedPost(null);
+      setEditMode(false);
+      loadCalendar();
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Supprimer l'événement
+  const deleteEvent = async () => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce post ?")) return;
+    
+    setSaving(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Delete_calendar", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: selectedPost.id
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      console.log("ÉVÉNEMENT SUPPRIMÉ");
+      
+      setSelectedPost(null);
+      setEditMode(false);
+      loadCalendar();
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      alert("Erreur: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Charger au démarrage et quand le mois change
   useEffect(() => {
     loadCalendar();
@@ -1063,11 +1383,25 @@ const CalendarPage = ({ assistant, setPage }) => {
               {getDays().map((day, i) => {
                 const dayPosts = posts.filter(p => p.day === day.d.getDate() && p.month === day.d.getMonth() && p.year === day.d.getFullYear() && day.current);
                 return (
-                  <div key={i} className={`min-h-24 p-2 border-b border-r ${day.current ? 'bg-white' : 'bg-gray-50'}`}>
+                  <div key={i} className={`min-h-24 p-2 border-b border-r relative ${day.current ? 'bg-white' : 'bg-gray-50'}`}>
                     <p className={`text-sm ${day.current ? 'text-gray-900' : 'text-gray-400'}`}>{day.d.getDate()}</p>
                     {dayPosts.map((p, j) => (
-                      <div key={j} className={`mt-1 p-1 rounded text-xs text-white truncate cursor-pointer hover:opacity-80 ${p.status === 'published' ? 'bg-green-500' : p.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`} title={p.caption}>
+                      <div 
+                        key={j} 
+                        className={`group mt-1 p-1 rounded text-xs text-white truncate cursor-pointer hover:opacity-80 relative ${p.status === 'published' ? 'bg-green-500' : p.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`}
+                        onClick={() => setSelectedPost(p)}
+                      >
                         📅 {p.title}
+                        
+                        {/* TOOLTIP AU SURVOL */}
+                        <div className="hidden group-hover:block absolute z-50 left-full ml-2 top-0 bg-white text-gray-800 rounded-xl shadow-2xl border p-3 w-64">
+                          {p.imageUrl && (
+                            <img src={p.imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-lg mb-2" />
+                          )}
+                          <p className="font-semibold text-sm truncate">{p.title}</p>
+                          <p className="text-xs text-gray-500 mt-1">🕐 {p.time}</p>
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">{p.caption}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1082,6 +1416,118 @@ const CalendarPage = ({ assistant, setPage }) => {
           <div className="flex items-center gap-2"><div className="w-3 h-3 bg-gray-400 rounded" /> Brouillon</div>
         </div>
       </div>
+
+      {/* POPUP AU CLIC */}
+      {selectedPost && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setSelectedPost(null); setEditMode(false); }}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Image */}
+            {selectedPost.imageUrl && (
+              <img src={selectedPost.imageUrl} alt="Post" className="w-full h-64 object-cover" />
+            )}
+            
+            {/* Contenu */}
+            <div className="p-6">
+              {!editMode ? (
+                <>
+                  {/* MODE LECTURE */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold">{selectedPost.title}</h3>
+                    <span className={`px-3 py-1 rounded-full text-xs text-white ${selectedPost.status === 'published' ? 'bg-green-500' : selectedPost.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`}>
+                      {selectedPost.status === 'published' ? 'Publié' : selectedPost.status === 'scheduled' ? 'Planifié' : 'Brouillon'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                    <span>📅 {selectedPost.day}/{selectedPost.month + 1}/{selectedPost.year}</span>
+                    <span>🕐 {selectedPost.time}</span>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedPost.description}</p>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1" onClick={() => window.open(selectedPost.imageUrl, '_blank')}>
+                      <Download className="w-4 h-4" /> Télécharger
+                    </Button>
+                    <Button variant="outline" className="flex-1" onClick={openEdit}>
+                      <Edit className="w-4 h-4" /> Modifier
+                    </Button>
+                    <Button variant="outline" className="flex-1 text-red-500 hover:bg-red-50" onClick={deleteEvent}>
+                      <Trash2 className="w-4 h-4" /> Supprimer
+                    </Button>
+                  </div>
+                  <Button className="w-full mt-3" onClick={() => setSelectedPost(null)}>
+                    <X className="w-4 h-4" /> Fermer
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* MODE ÉDITION */}
+                  <h3 className="text-xl font-bold mb-4">✏️ Modifier le post</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Titre</label>
+                      <input 
+                        type="text" 
+                        value={editTitle} 
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Description / Caption</label>
+                      <textarea 
+                        value={editCaption} 
+                        onChange={(e) => setEditCaption(e.target.value)}
+                        rows={5}
+                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                      />
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium mb-1">Date</label>
+                        <input 
+                          type="date" 
+                          value={editDate} 
+                          onChange={(e) => setEditDate(e.target.value)}
+                          className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium mb-1">Heure</label>
+                        <input 
+                          type="time" 
+                          value={editTime} 
+                          onChange={(e) => setEditTime(e.target.value)}
+                          className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 mt-6">
+                    <Button variant="outline" className="flex-1" onClick={() => setEditMode(false)}>
+                      <X className="w-4 h-4" /> Annuler
+                    </Button>
+                    <Button className="flex-1" onClick={saveChanges} disabled={saving}>
+                      {saving ? (
+                        <><RefreshCw className="w-4 h-4 animate-spin" /> Enregistrement...</>
+                      ) : (
+                        <><Check className="w-4 h-4" /> Enregistrer</>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
