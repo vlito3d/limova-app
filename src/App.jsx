@@ -1533,16 +1533,86 @@ const CalendarPage = ({ assistant, setPage }) => {
 };
 
 // ============ ALL CONTENTS ============
+// ============ ALL CONTENTS ============
 const AllContents = ({ assistant, setPage }) => {
   const [filter, setFilter] = useState('all');
-  const contents = [
-    { id: 1, title: 'Finale UCL', platform: 'instagram', date: '30/05/2025', status: 'published', emoji: '🏆' },
-    { id: 2, title: 'Finale UCL', platform: 'instagram', date: '31/05/2025', status: 'scheduled', emoji: '⚽' },
-    { id: 3, title: 'Lancement', platform: 'linkedin', date: '15/05/2025', status: 'published', emoji: '🚀' },
-    { id: 4, title: 'Promo été', platform: 'instagram', date: '01/06/2025', status: 'draft', emoji: '☀️' },
-  ];
+  const [contents, setContents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPath, setCurrentPath] = useState('/');
+  const [pathHistory, setPathHistory] = useState(['/']);
 
-  const filtered = contents.filter(c => filter === 'all' || c.status === filter);
+  // Charger les contenus depuis Google Drive
+  const loadContents = async (path = '/') => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Get_my_library", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: path
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const text = await response.text();
+      if (!text) {
+        setContents([]);
+        return;
+      }
+      
+      const result = JSON.parse(text);
+      const data = Array.isArray(result) ? result : [result];
+      
+      console.log("LIBRARY DATA:", data);
+      setContents(data);
+      
+    } catch (error) {
+      console.log("ERREUR:", error);
+      setContents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Charger au démarrage
+  useEffect(() => {
+    loadContents(currentPath);
+  }, []);
+
+  // Naviguer dans un dossier
+  const openFolder = (folderPath, folderName) => {
+    const newPath = currentPath === '/' ? '/' + folderName : currentPath + '/' + folderName;
+    setPathHistory([...pathHistory, newPath]);
+    setCurrentPath(newPath);
+    loadContents(newPath);
+  };
+
+  // Retour au dossier parent
+  const goBack = () => {
+    if (pathHistory.length > 1) {
+      const newHistory = [...pathHistory];
+      newHistory.pop();
+      const previousPath = newHistory[newHistory.length - 1];
+      setPathHistory(newHistory);
+      setCurrentPath(previousPath);
+      loadContents(previousPath);
+    }
+  };
+
+  // Filtrer les contenus (exclure les dossiers du filtre de statut)
+  const filtered = contents.filter(c => {
+    if (c.type === 'folder') return true;
+    return filter === 'all' || c.status === filter;
+  });
+
+  // Compter par statut
+  const countByStatus = (status) => {
+    if (status === 'all') return contents.filter(c => c.type !== 'folder').length;
+    return contents.filter(c => c.status === status).length;
+  };
 
   return (
     <div className="flex-1 bg-gray-50 overflow-y-auto">
@@ -1552,47 +1622,116 @@ const AllContents = ({ assistant, setPage }) => {
             <h1 className="text-2xl font-bold">Tous mes contenus</h1>
             <p className="text-gray-600">Gérez tous vos posts créés</p>
           </div>
-          <Button onClick={() => setPage('power-john-0')}><Plus className="w-4 h-4" /> Nouveau post</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => loadContents(currentPath)}>
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Actualiser
+            </Button>
+            <Button onClick={() => setPage('power-john-0')}><Plus className="w-4 h-4" /> Nouveau post</Button>
+          </div>
         </div>
 
+        {/* Chemin actuel / Breadcrumb */}
+        <Card className="p-3 mb-4">
+          <div className="flex items-center gap-2">
+            {currentPath !== '/' && (
+              <button onClick={goBack} className="p-2 hover:bg-gray-100 rounded-lg">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <Folder className="w-5 h-5 text-blue-500" />
+            <span className="text-sm text-gray-600">{currentPath === '/' ? 'Racine' : currentPath}</span>
+          </div>
+        </Card>
+
+        {/* Filtres */}
         <Card className="p-4 mb-6">
           <div className="flex gap-2">
-            {[{ id: 'all', label: 'Tous' }, { id: 'published', label: 'Publiés' }, { id: 'scheduled', label: 'Planifiés' }, { id: 'draft', label: 'Brouillons' }].map(f => (
-              <button key={f.id} onClick={() => setFilter(f.id)} className={`px-4 py-2 rounded-lg font-medium ${filter === f.id ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
-                {f.label} ({contents.filter(c => f.id === 'all' || c.status === f.id).length})
+            {[
+              { id: 'all', label: 'Tous' }, 
+              { id: 'published', label: 'Publiés', color: 'green' }, 
+              { id: 'scheduled', label: 'Planifiés', color: 'blue' }, 
+              { id: 'draft', label: 'Brouillons', color: 'gray' }
+            ].map(f => (
+              <button key={f.id} onClick={() => setFilter(f.id)} className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${filter === f.id ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
+                {f.color && <div className={`w-2 h-2 rounded-full bg-${f.color}-500`} />}
+                {f.label} ({countByStatus(f.id)})
               </button>
             ))}
           </div>
         </Card>
 
-        <div className="grid grid-cols-3 gap-6">
-          {filtered.map(c => (
-            <Card key={c.id} className="overflow-hidden group" hover>
-              <div className="h-48 bg-gradient-to-br from-blue-900 via-purple-900 to-red-900 flex items-center justify-center text-6xl relative">
-                {c.emoji}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <div className="flex gap-2">
-                    <button className="p-2 bg-white rounded-full hover:bg-gray-100"><Eye className="w-5 h-5" /></button>
-                    <button className="p-2 bg-white rounded-full hover:bg-gray-100"><Edit className="w-5 h-5" /></button>
-                    <button className="p-2 bg-white rounded-full hover:bg-gray-100 text-red-500"><Trash2 className="w-5 h-5" /></button>
+        {/* Contenu */}
+        {loading ? (
+          <div className="text-center py-12">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">Chargement de la bibliothèque...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12">
+            <Folder className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500">Aucun contenu trouvé</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-6">
+            {filtered.map((c, index) => (
+              <Card 
+                key={c.id || index} 
+                className={`overflow-hidden group ${c.type === 'folder' ? 'cursor-pointer' : ''}`} 
+                hover
+                onClick={() => c.type === 'folder' && openFolder(c.path, c.name)}
+              >
+                {/* Affichage pour les dossiers */}
+                {c.type === 'folder' ? (
+                  <div className="p-8 flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100">
+                    <Folder className="w-16 h-16 text-yellow-500 mb-3" />
+                    <p className="font-medium text-center">{c.name}</p>
+                    <p className="text-sm text-gray-500">{c.itemCount || 0} éléments</p>
                   </div>
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium">{c.title}</p>
-                  <Badge variant={c.status === 'published' ? 'success' : c.status === 'scheduled' ? 'primary' : 'default'}>
-                    {c.status === 'published' ? 'Publié' : c.status === 'scheduled' ? 'Planifié' : 'Brouillon'}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span className="flex items-center gap-1"><Instagram className="w-4 h-4" /> {c.platform}</span>
-                  <span>{c.date}</span>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+                ) : (
+                  /* Affichage pour les fichiers/posts */
+                  <>
+                    <div className="h-48 bg-gradient-to-br from-blue-900 via-purple-900 to-red-900 flex items-center justify-center text-6xl relative overflow-hidden">
+                      {c.imageUrl || c.thumbnailUrl ? (
+                        <img src={c.imageUrl || c.thumbnailUrl} alt={c.title || c.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{c.emoji || '📄'}</span>
+                      )}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div className="flex gap-2">
+                          <button className="p-2 bg-white rounded-full hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); window.open(c.imageUrl || c.url, '_blank'); }}>
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          <button className="p-2 bg-white rounded-full hover:bg-gray-100">
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button className="p-2 bg-white rounded-full hover:bg-gray-100 text-red-500">
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                      {/* Badge de statut sur l'image */}
+                      <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs text-white ${c.status === 'published' ? 'bg-green-500' : c.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-400'}`}>
+                        {c.status === 'published' ? '✓ Publié' : c.status === 'scheduled' ? '📅 Planifié' : '📝 Brouillon'}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium truncate">{c.title || c.name}</p>
+                      </div>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          {c.platform === 'instagram' && <Instagram className="w-4 h-4" />}
+                          {c.platform || 'Fichier'}
+                        </span>
+                        <span>{c.date || c.createdAt || ''}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
