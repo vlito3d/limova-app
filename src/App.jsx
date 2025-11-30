@@ -13,11 +13,30 @@ const ASSISTANTS = [
   { id: 'julia', name: 'Julia', role: 'Assistante Juridique', color: 'from-indigo-500 to-purple-500', bgColor: 'bg-gradient-to-br from-indigo-500 to-purple-500', icon: Scale, powers: ['Contrats', 'CGV', 'Mentions légales'], description: 'Vos documents juridiques en un clic.', greeting: 'Bonjour ! Je suis Julia. Je rédige vos documents juridiques sur mesure.' }
 ];
 
+const TikTok = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>;
+const Pinterest = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 00-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.96s-.37-.74-.37-1.82c0-1.7 1-2.97 2.24-2.97 1.06 0 1.57.8 1.57 1.75 0 1.06-.68 2.65-1.03 4.13-.3 1.24.62 2.26 1.84 2.26 2.2 0 3.9-2.33 3.9-5.7 0-2.97-2.13-5.05-5.18-5.05-3.53 0-5.6 2.65-5.6 5.38 0 1.06.4 2.2.92 2.83.1.12.12.23.08.36l-.34 1.4c-.06.23-.18.28-.42.17-1.56-.73-2.54-3-2.54-4.83 0-3.94 2.86-7.55 8.26-7.55 4.33 0 7.7 3.1 7.7 7.22 0 4.32-2.72 7.8-6.5 7.8-1.27 0-2.46-.66-2.87-1.44l-.78 2.98c-.28 1.1-1.05 2.47-1.56 3.3A12 12 0 1012 0z"/></svg>;
+const Snapchat = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12.21 1.5c2.72 0 4.5 1.37 5.36 2.73.7 1.1 1.02 2.4 1.02 4.07 0 .47-.03.93-.07 1.4l.02.01c.4.17.72.37.94.7.28.4.34.87.17 1.32-.26.7-.9 1.08-1.48 1.25.05.24.12.47.2.7.45 1.23 1.1 2.1 1.75 2.67.4.35.83.6 1.2.73.23.08.52.14.85.14.15 0 .3-.01.45-.04l.08-.02c.08-.02.16-.02.24-.02.32 0 .57.12.73.24.26.2.4.5.38.84-.03.47-.36.87-.96 1.17-.74.37-1.77.6-3.06.7-.1.13-.18.42-.25.66-.07.26-.15.53-.28.78-.15.3-.4.53-.85.53h-.04c-.2 0-.42-.04-.67-.1a7.6 7.6 0 00-1.48-.2c-.37 0-.72.04-1.05.12-.5.12-.94.37-1.44.66-.73.43-1.56.92-2.85.92h-.12c-1.3 0-2.12-.49-2.86-.92-.5-.3-.94-.54-1.44-.66a4.9 4.9 0 00-1.05-.12c-.53 0-1.03.08-1.48.2-.25.06-.47.1-.67.1h-.04c-.46 0-.7-.24-.85-.53-.13-.25-.2-.52-.28-.78-.07-.24-.15-.53-.25-.66-1.29-.1-2.32-.33-3.06-.7-.6-.3-.93-.7-.96-1.17-.02-.33.12-.64.38-.84.16-.12.4-.24.73-.24.08 0 .16 0 .24.02l.08.02c.15.03.3.04.45.04.33 0 .62-.06.85-.14.37-.13.8-.38 1.2-.73.65-.56 1.3-1.44 1.75-2.67.08-.23.15-.46.2-.7-.58-.17-1.22-.55-1.48-1.25-.17-.45-.1-.92.17-1.32.22-.33.55-.53.94-.7l.02-.01c-.04-.47-.07-.93-.07-1.4 0-1.67.32-2.97 1.02-4.07.86-1.36 2.64-2.73 5.36-2.73h.42z"/></svg>;
+const XTwitter = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
+const Threads = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.5 12.068V12c.015-3.58 1.205-6.334 3.509-8.184C6.96 2.171 9.814 1.5 12.068 1.5h.064c2.467.017 4.623.672 6.395 1.942.56.4.75 1.178.42 1.783-.326.594-1.07.83-1.69.55-.08-.04-.17-.07-.25-.11-1.39-.6-2.99-.96-4.75-.97-1.87 0-3.57.48-4.92 1.39-1.64 1.11-2.57 2.77-2.61 4.7v.13c.03 2.01.94 3.72 2.57 4.88 1.34.96 3.05 1.48 4.96 1.52 1.9-.04 3.45-.52 4.61-1.43.95-.74 1.47-1.72 1.5-2.84.01-.43-.06-.86-.22-1.26-.22-.54-.6-1.03-1.12-1.38-.36.97-.95 1.82-1.72 2.49-.96.83-2.13 1.4-3.46 1.68-.33.07-.67.1-1.01.1-1.03 0-2.03-.28-2.86-.8-.96-.6-1.6-1.5-1.8-2.52-.06-.32-.09-.65-.08-.99.04-1.13.55-2.14 1.43-2.86.77-.62 1.77-1.03 2.97-1.2.42-.06.86-.09 1.31-.09.86 0 1.7.1 2.5.3.53.13 1.04.3 1.52.52.13-1.1-.12-2.13-.72-2.94-.71-.95-1.87-1.52-3.36-1.65-.07 0-.13 0-.2-.01-1.2 0-2.38.27-3.42.78-.53.26-1.17.06-1.49-.44-.32-.5-.18-1.15.3-1.51 1.25-.93 2.86-1.5 4.6-1.5.14 0 .28 0 .42.01 2.27.16 4.07 1.08 5.21 2.64.87 1.18 1.27 2.67 1.18 4.33-.01.1-.01.2-.02.3 1.55 1.01 2.52 2.57 2.72 4.4.06.53.07 1.06.02 1.59-.17 1.76-.98 3.29-2.35 4.44-1.57 1.32-3.67 2.04-6.07 2.08h-.13zm-1.21-9.6c-.74.08-1.36.3-1.8.63-.43.33-.66.74-.68 1.22-.01.13.01.27.05.42.08.34.33.72.77 1 .5.31 1.17.48 1.87.48.21 0 .42-.02.63-.05.86-.18 1.59-.55 2.15-1.08.43-.4.77-.88.99-1.41-.34-.11-.7-.2-1.06-.27-.6-.12-1.23-.17-1.86-.16-.36 0-.72.02-1.06.07z"/></svg>;
+const Telegram = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>;
+const WhatsApp = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>;
+const YouTube = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>;
+
+
 const SOCIAL_PLATFORMS = [
-  { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'from-purple-500 via-pink-500 to-orange-500', connected: true, account: '@pulsoragency' },
-  { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'from-blue-600 to-blue-500', connected: false },
-  { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'from-blue-700 to-blue-600', connected: true, account: 'Pulsor Agency' },
-  { id: 'twitter', name: 'X', icon: Twitter, color: 'from-gray-800 to-gray-900', connected: false, comingSoon: true }
+  { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'from-pink-500 to-purple-500', connected: true, account: '@GCLVSai' },
+  { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'from-blue-600 to-blue-700', connected: true, account: '@GCLVSai' },
+  { id: 'tiktok', name: 'TikTok', icon: TikTok, color: 'from-gray-900 to-gray-800', connected: true, account: '@GCLVSai' },
+  { id: 'youtube', name: 'YouTube', icon: YouTube, color: 'from-red-600 to-red-700', connected: true, account: '@GCLVSai' },
+  { id: 'pinterest', name: 'Pinterest', icon: Pinterest, color: 'from-red-500 to-red-600', connected: true, account: '@GCLVSai' },
+  { id: 'snapchat', name: 'Snapchat', icon: Snapchat, color: 'from-yellow-400 to-yellow-500', connected: true, account: '@GCLVSai' },
+  { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'from-blue-700 to-blue-800', connected: true, account: '@GCLVSai' },
+  { id: 'x', name: 'X (Twitter)', icon: XTwitter, color: 'from-gray-900 to-black', connected: true, account: '@GCLVSai' },
+  { id: 'threads', name: 'Threads', icon: Threads, color: 'from-gray-800 to-gray-900', connected: true, account: '@GCLVSai' },
+  { id: 'telegram', name: 'Telegram', icon: Telegram, color: 'from-blue-400 to-blue-500', connected: true, account: '+33 7 60 23 98 79' },
+  { id: 'whatsapp', name: 'WhatsApp', icon: WhatsApp, color: 'from-green-500 to-green-600', connected: true, account: '+33 7 60 23 98 79' },
+  { id: 'gmail', name: 'Gmail', icon: Mail, color: 'from-red-500 to-orange-500', connected: true, account: 'gclvssteve@gmail.com' },
+  { id: 'email', name: 'Email Pro', icon: Mail, color: 'from-blue-500 to-purple-500', connected: true, account: 'contact@gclvsai.fr' },
 ];
 
 // ============ UI COMPONENTS ============
@@ -220,9 +239,9 @@ const Sidebar = ({ page, setPage, assistant, setAssistant }) => {
       {/* Logo */}
       <div className="p-4 border-b flex items-center gap-2">
         <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow">
-          <span className="text-white font-bold text-xl">L</span>
+          <span className="text-white font-bold text-xl">G</span>
         </div>
-        <span className="font-bold text-xl">Limova</span>
+        <span className="font-bold text-xl">GCLVSai</span>
       </div>
 
       {/* Current Assistant */}
@@ -467,15 +486,64 @@ const AssistantChat = ({ assistant }) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionId] = useState(() => 'session-' + Date.now());
+  const [failedImages, setFailedImages] = useState({});
+  const [attachedImage, setAttachedImage] = useState(null);
+  const [attachedImagePreview, setAttachedImagePreview] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
+  // Gérer l'upload d'image
+  const handleImageUpload = (file) => {
+    if (file && file.type.startsWith('image/')) {
+      setAttachedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachedImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-  
+  // Gérer le drag & drop
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    handleImageUpload(file);
+  };
+
+  // Supprimer l'image attachée
+  const removeAttachedImage = () => {
+    setAttachedImage(null);
+    setAttachedImagePreview(null);
+  };
+
   const send = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !attachedImage) return;
     
     const userMessage = input;
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    const userImage = attachedImagePreview;
+    
+    // Ajouter le message utilisateur avec l'image si présente
+    setMessages(prev => [...prev, { 
+      role: 'user', 
+      content: userMessage || "Image envoyée",
+      imageUrl: userImage,
+      id: Date.now()
+    }]);
+    
     setInput('');
+    setAttachedImage(null);
+    setAttachedImagePreview(null);
     setLoading(true);
     
     try {
@@ -484,6 +552,8 @@ const AssistantChat = ({ assistant }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
+          image: userImage, // Base64 de l'image
+          hasImage: !!userImage,
           sessionId: sessionId,
           assistantId: assistant.id,
           assistantName: assistant.name,
@@ -511,7 +581,8 @@ const AssistantChat = ({ assistant }) => {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: botResponse,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        id: Date.now()
       }]);
       
     } catch (error) {
@@ -520,6 +591,12 @@ const AssistantChat = ({ assistant }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Gérer l'échec de chargement d'image
+  const handleImageError = (msgId, url) => {
+    console.log("IMAGE FAILED:", url);
+    setFailedImages(prev => ({ ...prev, [msgId]: true }));
   };
 
   return (
@@ -542,18 +619,44 @@ const AssistantChat = ({ assistant }) => {
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
               {msg.role === 'assistant' && <Avatar assistant={assistant} size="sm" />}
               <div className={`max-w-[70%] rounded-2xl overflow-hidden ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white border shadow-sm rounded-bl-none'}`}>
-                {/* Texte */}
-                <div className="p-4">{msg.content}</div>
                 
-                {/* Image si présente */}
-                {msg.imageUrl && (
+                {/* Image de l'utilisateur en haut */}
+                {msg.role === 'user' && msg.imageUrl && (
+                  <img 
+                    src={msg.imageUrl} 
+                    alt="Image envoyée" 
+                    className="w-full max-h-60 object-contain"
+                  />
+                )}
+                
+                {/* Texte */}
+                {msg.content && <div className="p-4">{msg.content}</div>}
+                
+                {/* Image de l'assistant */}
+                {msg.role === 'assistant' && msg.imageUrl && (
                   <div className="border-t">
-                    <img 
-                      src={msg.imageUrl} 
-                      alt="Image générée" 
-                      className="w-full max-h-80 object-contain cursor-pointer hover:opacity-90"
-                      onClick={() => window.open(msg.imageUrl, '_blank')}
-                    />
+                    {!failedImages[msg.id] ? (
+                      <img 
+                        src={msg.imageUrl} 
+                        alt="Image générée" 
+                        className="w-full max-h-80 object-contain cursor-pointer hover:opacity-90"
+                        onClick={() => window.open(msg.imageUrl, '_blank')}
+                        onError={() => handleImageError(msg.id, msg.imageUrl)}
+                      />
+                    ) : (
+                      <div className="p-6 bg-gray-100 flex flex-col items-center justify-center gap-3">
+                        <div className="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center">
+                          <Image className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-sm text-gray-500 text-center">L'image ne peut pas être affichée directement</p>
+                        <button 
+                          onClick={() => window.open(msg.imageUrl, '_blank')}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center gap-2"
+                        >
+                          <ExternalLink className="w-4 h-4" /> Ouvrir l'image
+                        </button>
+                      </div>
+                    )}
                     <div className="p-2 flex gap-2 bg-gray-50">
                       <button 
                         onClick={() => window.open(msg.imageUrl, '_blank')}
@@ -597,29 +700,74 @@ const AssistantChat = ({ assistant }) => {
       {/* Input */}
       <div className="bg-white border-t p-4">
         <div className="max-w-3xl mx-auto">
-          <div className="flex gap-2">
-            <div className="flex-1 bg-gray-100 rounded-2xl p-2">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-                placeholder={`Message à ${assistant.name}...`}
-                rows={1}
-                className="w-full bg-transparent px-3 py-2 outline-none resize-none"
-              />
-              <div className="flex items-center justify-between px-2">
-                <div className="flex gap-1">
-                  <button className="p-2 hover:bg-gray-200 rounded-lg"><Paperclip className="w-5 h-5 text-gray-500" /></button>
-                  <button className="p-2 hover:bg-gray-200 rounded-lg"><Image className="w-5 h-5 text-gray-500" /></button>
-                  <button className="p-2 hover:bg-gray-200 rounded-lg"><Globe className="w-5 h-5 text-gray-500" /></button>
-                </div>
-                <button className="p-2 hover:bg-gray-200 rounded-lg"><Mic className="w-5 h-5 text-gray-500" /></button>
-              </div>
+          
+          {/* Aperçu image attachée */}
+          {attachedImagePreview && (
+            <div className="mb-3 relative inline-block">
+              <img src={attachedImagePreview} alt="Aperçu" className="h-24 rounded-xl border" />
+              <button 
+                onClick={removeAttachedImage}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <button onClick={send} disabled={!input.trim() || loading} className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white hover:bg-blue-700 disabled:opacity-50">
+          )}
+          
+          <div 
+            className={`flex gap-2 ${isDragging ? 'ring-2 ring-blue-500 ring-offset-2 rounded-2xl' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className={`flex-1 bg-gray-100 rounded-2xl p-2 transition-colors ${isDragging ? 'bg-blue-50' : ''}`}>
+              
+              {isDragging ? (
+                <div className="flex items-center justify-center py-6 text-blue-600">
+                  <Upload className="w-6 h-6 mr-2" />
+                  <span>Déposez l'image ici</span>
+                </div>
+              ) : (
+                <>
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
+                    placeholder={`Message à ${assistant.name}...`}
+                    rows={1}
+                    className="w-full bg-transparent px-3 py-2 outline-none resize-none"
+                  />
+                  <div className="flex items-center justify-between px-2">
+                    <div className="flex gap-1">
+                      <button className="p-2 hover:bg-gray-200 rounded-lg"><Paperclip className="w-5 h-5 text-gray-500" /></button>
+                      <button 
+                        className="p-2 hover:bg-gray-200 rounded-lg"
+                        onClick={() => document.getElementById('chatImageInput').click()}
+                      >
+                        <Image className="w-5 h-5 text-gray-500" />
+                      </button>
+                      <input 
+                        type="file" 
+                        id="chatImageInput"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e.target.files[0])}
+                        className="hidden"
+                      />
+                      <button className="p-2 hover:bg-gray-200 rounded-lg"><Globe className="w-5 h-5 text-gray-500" /></button>
+                    </div>
+                    <button className="p-2 hover:bg-gray-200 rounded-lg"><Mic className="w-5 h-5 text-gray-500" /></button>
+                  </div>
+                </>
+              )}
+            </div>
+            <button onClick={send} disabled={(!input.trim() && !attachedImage) || loading} className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white hover:bg-blue-700 disabled:opacity-50">
               <Send className="w-5 h-5" />
             </button>
           </div>
+          
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            Glissez-déposez une image ou cliquez sur 🖼️ pour en ajouter une
+          </p>
         </div>
       </div>
     </div>
@@ -794,7 +942,7 @@ const PostCreator = ({ assistant, setPage }) => {
         body: JSON.stringify({
           caption: caption,
           imageUrl: post.imageUrl,
-          title: post.title || 'Post Limova',
+          title: post.title || 'Post GCLVSai',
           hashtags: post.hashtags || '',
           createdAt: new Date().toISOString()
         }),
@@ -1184,20 +1332,107 @@ const PostCreator = ({ assistant, setPage }) => {
 // ============ BACKGROUND REMOVER (John Power 1) ============
 const BackgroundRemover = ({ assistant }) => {
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [resultImage, setResultImage] = useState(null);
   const [processed, setProcessed] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFile = (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    
+    setImage(file);
+    setProcessed(false);
+    setResultImage(null);
+    setError(null);
+    
     const reader = new FileReader();
-    reader.onload = (e) => setImage(e.target.result);
+    reader.onload = (e) => setImagePreview(e.target.result);
     reader.readAsDataURL(file);
+  };
+
+  // Drag & drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    handleFile(file);
   };
 
   const process = async () => {
     setProcessing(true);
-    await new Promise(r => setTimeout(r, 3000));
-    setProcessed(true);
-    setProcessing(false);
+    setError(null);
+    
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Erase_background", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: imagePreview,
+          imageName: image?.name || 'image.png',
+          timestamp: new Date().toISOString()
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur serveur: " + response.status);
+      }
+      
+      const text = await response.text();
+      if (!text) {
+        throw new Error("Réponse vide");
+      }
+      
+      const result = JSON.parse(text);
+      const data = Array.isArray(result) ? result[0] : result;
+      
+      console.log("RÉSULTAT:", data);
+      
+      // Récupérer l'URL de l'image sans fond
+      const resultUrl = data.imageUrl || data.url || data.Url || data.image || data.result || null;
+      
+      if (!resultUrl) {
+        throw new Error("Aucune image retournée");
+      }
+      
+      setResultImage(resultUrl);
+      setProcessed(true);
+      
+    } catch (err) {
+      console.log("ERREUR:", err);
+      setError(err.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const downloadImage = () => {
+    if (resultImage) {
+      const link = document.createElement('a');
+      link.href = resultImage;
+      link.download = 'image-sans-fond.png';
+      link.target = '_blank';
+      link.click();
+    }
+  };
+
+  const reset = () => {
+    setImage(null);
+    setImagePreview(null);
+    setResultImage(null);
+    setProcessed(false);
+    setError(null);
   };
 
   return (
@@ -1212,47 +1447,95 @@ const BackgroundRemover = ({ assistant }) => {
         </div>
 
         <Card className="p-8">
-          {!image ? (
-            <div className="border-2 border-dashed rounded-2xl p-16 text-center hover:border-purple-400 hover:bg-purple-50 transition-colors cursor-pointer">
-              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Upload className="w-10 h-10 text-purple-500" />
+          {!imagePreview ? (
+            <div 
+              className={`border-2 border-dashed rounded-2xl p-16 text-center transition-colors cursor-pointer ${isDragging ? 'border-purple-500 bg-purple-100' : 'hover:border-purple-400 hover:bg-purple-50'}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById('bg-upload').click()}
+            >
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${isDragging ? 'bg-purple-200' : 'bg-purple-100'}`}>
+                <Upload className={`w-10 h-10 ${isDragging ? 'text-purple-600' : 'text-purple-500'}`} />
               </div>
-              <p className="text-xl font-semibold mb-2">Glissez votre image ici</p>
-              <p className="text-gray-500 mb-6">ou cliquez pour sélectionner</p>
-              <input type="file" className="hidden" id="bg-upload" accept="image/*" onChange={(e) => e.target.files[0] && handleFile(e.target.files[0])} />
-              <label htmlFor="bg-upload"><Button variant="gradient" className="cursor-pointer"><Upload className="w-4 h-4" /> Choisir une image</Button></label>
+              {isDragging ? (
+                <p className="text-xl font-semibold text-purple-600">Déposez l'image ici</p>
+              ) : (
+                <>
+                  <p className="text-xl font-semibold mb-2">Glissez votre image ici</p>
+                  <p className="text-gray-500 mb-6">ou cliquez pour sélectionner</p>
+                  <Button variant="gradient" className="cursor-pointer"><Upload className="w-4 h-4" /> Choisir une image</Button>
+                </>
+              )}
+              <input 
+                type="file" 
+                className="hidden" 
+                id="bg-upload" 
+                accept="image/*" 
+                onChange={(e) => e.target.files[0] && handleFile(e.target.files[0])} 
+              />
             </div>
           ) : (
             <div className="space-y-8">
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <h3 className="font-semibold mb-3">Image originale</h3>
-                  <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden"><img src={image} alt="Original" className="w-full h-full object-contain" /></div>
+                  <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden">
+                    <img src={imagePreview} alt="Original" className="w-full h-full object-contain" />
+                  </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold">Résultat</h3>
                     {processed && <Badge variant="success">Terminé</Badge>}
+                    {error && <Badge variant="danger">Erreur</Badge>}
                   </div>
-                  <div className="aspect-square bg-[repeating-conic-gradient(#e5e7eb_0%_25%,#f3f4f6_0%_50%)] bg-[size:20px_20px] rounded-2xl flex items-center justify-center">
+                  <div className="aspect-square bg-[repeating-conic-gradient(#e5e7eb_0%_25%,#f3f4f6_0%_50%)] bg-[size:20px_20px] rounded-2xl flex items-center justify-center overflow-hidden">
                     {processing ? (
-                      <div className="text-center"><RefreshCw className="w-8 h-8 animate-spin text-purple-500 mx-auto mb-2" /><p className="text-gray-500">Traitement...</p></div>
-                    ) : processed ? (
-                      <img src={image} alt="Processed" className="w-full h-full object-contain" />
+                      <div className="text-center">
+                        <RefreshCw className="w-8 h-8 animate-spin text-purple-500 mx-auto mb-2" />
+                        <p className="text-gray-500">Traitement en cours...</p>
+                      </div>
+                    ) : error ? (
+                      <div className="text-center p-4">
+                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <X className="w-8 h-8 text-red-500" />
+                        </div>
+                        <p className="text-red-500 text-sm">{error}</p>
+                      </div>
+                    ) : processed && resultImage ? (
+                      <img src={resultImage} alt="Processed" className="w-full h-full object-contain" />
                     ) : (
-                      <div className="text-center text-gray-400"><Wand2 className="w-12 h-12 mx-auto mb-2 opacity-50" /><p>Cliquez sur "Supprimer le fond"</p></div>
+                      <div className="text-center text-gray-400">
+                        <Wand2 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>Cliquez sur "Supprimer le fond"</p>
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
+              
               <div className="flex justify-center gap-4">
-                <Button variant="outline" onClick={() => { setImage(null); setProcessed(false); }}><RefreshCw className="w-4 h-4" /> Nouvelle image</Button>
+                <Button variant="outline" onClick={reset}>
+                  <RefreshCw className="w-4 h-4" /> Nouvelle image
+                </Button>
                 {!processed ? (
                   <Button variant="gradient" onClick={process} disabled={processing}>
-                    {processing ? <><RefreshCw className="w-4 h-4 animate-spin" /> Traitement...</> : <><Wand2 className="w-4 h-4" /> Supprimer le fond</>}
+                    {processing ? (
+                      <><RefreshCw className="w-4 h-4 animate-spin" /> Traitement...</>
+                    ) : (
+                      <><Wand2 className="w-4 h-4" /> Supprimer le fond</>
+                    )}
                   </Button>
                 ) : (
-                  <Button variant="success"><Download className="w-4 h-4" /> Télécharger PNG</Button>
+                  <>
+                    <Button variant="outline" onClick={process}>
+                      <RefreshCw className="w-4 h-4" /> Réessayer
+                    </Button>
+                    <Button variant="success" onClick={downloadImage}>
+                      <Download className="w-4 h-4" /> Télécharger PNG
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
@@ -1262,7 +1545,6 @@ const BackgroundRemover = ({ assistant }) => {
     </div>
   );
 };
-
 
 // ============ CALENDAR ============
 const CalendarPage = ({ assistant, setPage }) => {
@@ -2146,7 +2428,7 @@ const SocialConnections = () => {
   const connect = async (id) => {
     setConnecting(id);
     await new Promise(r => setTimeout(r, 2000));
-    setPlatforms(prev => prev.map(p => p.id === id ? { ...p, connected: true, account: '@moncompte' } : p));
+    setPlatforms(prev => prev.map(p => p.id === id ? { ...p, connected: true, account: '@GCLVSai' } : p));
     setConnecting(null);
   };
 
@@ -2154,37 +2436,129 @@ const SocialConnections = () => {
     setPlatforms(prev => prev.map(p => p.id === id ? { ...p, connected: false, account: '' } : p));
   };
 
+  const connectedCount = platforms.filter(p => p.connected).length;
+
   return (
     <div className="flex-1 bg-gray-50 overflow-y-auto">
-      <div className="max-w-4xl mx-auto p-8">
+      <div className="max-w-5xl mx-auto p-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold">Connectez vos réseaux sociaux</h1>
-          <p className="text-gray-600">Publiez automatiquement sur toutes vos plateformes</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Connectez vos réseaux sociaux</h1>
+              <p className="text-gray-600">Publiez automatiquement sur toutes vos plateformes</p>
+            </div>
+            <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
+              ✓ {connectedCount}/{platforms.length} connectés
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          {platforms.map(p => (
-            <Card key={p.id} className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${p.color} flex items-center justify-center shadow-lg`}>
-                  <p.icon className="w-8 h-8 text-white" />
+        {/* Section Réseaux Sociaux */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-blue-500" />
+            Réseaux Sociaux
+          </h2>
+          <div className="grid grid-cols-3 gap-6">
+            {platforms.filter(p => !['gmail', 'email', 'telegram', 'whatsapp'].includes(p.id)).map(p => (
+              <Card key={p.id} className={`p-6 ${p.connected ? 'ring-2 ring-green-200' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${p.color} flex items-center justify-center shadow-lg`}>
+                    <p.icon className="w-7 h-7 text-white" />
+                  </div>
+                  {p.connected && <Badge variant="success"><CheckCircle className="w-3 h-3 mr-1" /> Connecté</Badge>}
                 </div>
-                {p.connected && <Badge variant="success"><CheckCircle className="w-3 h-3 mr-1" /> Connecté</Badge>}
-              </div>
-              <h3 className="text-xl font-bold mb-1">{p.name}</h3>
-              <p className="text-gray-500 text-sm mb-4">Publiez automatiquement sur {p.name}</p>
-              {p.connected && <div className="bg-gray-50 rounded-lg p-3 mb-4"><p className="text-sm text-gray-600">Compte: <strong>{p.account}</strong></p></div>}
-              {p.comingSoon ? (
-                <Button variant="secondary" disabled className="w-full"><Clock className="w-4 h-4" /> Bientôt disponible</Button>
-              ) : p.connected ? (
-                <Button variant="outline" onClick={() => disconnect(p.id)} className="w-full text-red-600 border-red-200 hover:bg-red-50"><Unlink className="w-4 h-4" /> Déconnecter</Button>
-              ) : (
-                <Button onClick={() => connect(p.id)} className="w-full" disabled={connecting === p.id}>
-                  {connecting === p.id ? <><RefreshCw className="w-4 h-4 animate-spin" /> Connexion...</> : <><Link className="w-4 h-4" /> Connecter</>}
-                </Button>
-              )}
-            </Card>
-          ))}
+                <h3 className="text-lg font-bold mb-1">{p.name}</h3>
+                <p className="text-gray-500 text-sm mb-4">Publiez automatiquement sur {p.name}</p>
+                {p.connected && (
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-gray-600">Compte: <strong className="text-gray-900">{p.account}</strong></p>
+                  </div>
+                )}
+                {p.connected ? (
+                  <Button variant="outline" onClick={() => disconnect(p.id)} className="w-full text-red-600 border-red-200 hover:bg-red-50">
+                    <Unlink className="w-4 h-4" /> Déconnecter
+                  </Button>
+                ) : (
+                  <Button onClick={() => connect(p.id)} className="w-full" disabled={connecting === p.id}>
+                    {connecting === p.id ? <><RefreshCw className="w-4 h-4 animate-spin" /> Connexion...</> : <><Link className="w-4 h-4" /> Connecter</>}
+                  </Button>
+                )}
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Section Messageries */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-green-500" />
+            Messageries
+          </h2>
+          <div className="grid grid-cols-2 gap-6">
+            {platforms.filter(p => ['telegram', 'whatsapp'].includes(p.id)).map(p => (
+              <Card key={p.id} className={`p-6 ${p.connected ? 'ring-2 ring-green-200' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${p.color} flex items-center justify-center shadow-lg`}>
+                    <p.icon className="w-7 h-7 text-white" />
+                  </div>
+                  {p.connected && <Badge variant="success"><CheckCircle className="w-3 h-3 mr-1" /> Connecté</Badge>}
+                </div>
+                <h3 className="text-lg font-bold mb-1">{p.name}</h3>
+                <p className="text-gray-500 text-sm mb-4">Recevez et envoyez des messages via {p.name}</p>
+                {p.connected && (
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-gray-600">Numéro: <strong className="text-gray-900">{p.account}</strong></p>
+                  </div>
+                )}
+                {p.connected ? (
+                  <Button variant="outline" onClick={() => disconnect(p.id)} className="w-full text-red-600 border-red-200 hover:bg-red-50">
+                    <Unlink className="w-4 h-4" /> Déconnecter
+                  </Button>
+                ) : (
+                  <Button onClick={() => connect(p.id)} className="w-full" disabled={connecting === p.id}>
+                    {connecting === p.id ? <><RefreshCw className="w-4 h-4 animate-spin" /> Connexion...</> : <><Link className="w-4 h-4" /> Connecter</>}
+                  </Button>
+                )}
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Section Emails */}
+        <div>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Mail className="w-5 h-5 text-red-500" />
+            Emails
+          </h2>
+          <div className="grid grid-cols-2 gap-6">
+            {platforms.filter(p => ['gmail', 'email'].includes(p.id)).map(p => (
+              <Card key={p.id} className={`p-6 ${p.connected ? 'ring-2 ring-green-200' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${p.color} flex items-center justify-center shadow-lg`}>
+                    <p.icon className="w-7 h-7 text-white" />
+                  </div>
+                  {p.connected && <Badge variant="success"><CheckCircle className="w-3 h-3 mr-1" /> Connecté</Badge>}
+                </div>
+                <h3 className="text-lg font-bold mb-1">{p.name}</h3>
+                <p className="text-gray-500 text-sm mb-4">Envoyez des emails via {p.name}</p>
+                {p.connected && (
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-gray-600">Email: <strong className="text-gray-900">{p.account}</strong></p>
+                  </div>
+                )}
+                {p.connected ? (
+                  <Button variant="outline" onClick={() => disconnect(p.id)} className="w-full text-red-600 border-red-200 hover:bg-red-50">
+                    <Unlink className="w-4 h-4" /> Déconnecter
+                  </Button>
+                ) : (
+                  <Button onClick={() => connect(p.id)} className="w-full" disabled={connecting === p.id}>
+                    {connecting === p.id ? <><RefreshCw className="w-4 h-4 animate-spin" /> Connexion...</> : <><Link className="w-4 h-4" /> Connecter</>}
+                  </Button>
+                )}
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>
