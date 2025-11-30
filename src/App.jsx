@@ -3535,8 +3535,8 @@ const LinkedInAutomation = ({ assistant }) => {
   const [selected, setSelected] = useState([]);
 
   const prospects = [
-    { id: 1, name: 'Geoffrey Martin', title: 'CEO @ TechStartup', location: 'Paris' },
-    { id: 2, name: 'Virginie POULET', title: 'DRH @ Entreprise', location: 'Lyon' },
+    { id: 1, name: 'Geoffrey Farhan', title: 'CEO @ TechStartup', location: 'Paris' },
+    { id: 2, name: 'Virginie Seur', title: 'DRH @ Entreprise', location: 'Lyon' },
     { id: 3, name: 'Aurélien Morillon', title: 'Fondateur @ Agence', location: 'Nantes' },
     { id: 4, name: 'Jean-Daniel C.', title: 'Directeur Finance', location: 'Marseille' },
     { id: 5, name: 'Carla Danielou', title: 'Brand Manager', location: 'Lille' },
@@ -3869,14 +3869,14 @@ const SettingsPage = () => {
               <div className="space-y-6">
                 <h2 className="text-lg font-semibold">Informations du profil</h2>
                 <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">T</div>
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">S</div>
                   <div><Button variant="outline" size="sm">Changer la photo</Button></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <Input label="Prénom" defaultValue="Steve" />
-                  <Input label="Nom" defaultValue="Martin" />
+                  <Input label="Nom" defaultValue="Gonçalves" />
                 </div>
-                <Input label="Email" defaultValue="theo@pulsoragency.com" />
+                <Input label="Email" defaultValue="gclvssteve@gmail.com" />
                 <Button>Sauvegarder</Button>
               </div>
             )}
@@ -4143,10 +4143,16 @@ const IntegrationsPage = () => {
 // ============ TEAM PAGE ============
 const TeamPage = () => {
   const [selectedMember, setSelectedMember] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [notionMembers, setNotionMembers] = useState([]);
 
-  const members = [
+  // Membres par défaut (toujours affichés)
+  const defaultMembers = [
     { 
-      id: 1, 
+      id: 'default-1', 
       name: 'Steve Gonçalves', 
       email: 'goncalvessteve@gclvsai.fr', 
       phone: '+33 7 60 23 98 79',
@@ -4155,35 +4161,36 @@ const TeamPage = () => {
       color: 'from-purple-600 to-pink-600',
       bio: 'Fondateur de GCLVS AI. Passionné par l\'automatisation et l\'intelligence artificielle, je crée des solutions innovantes pour optimiser vos processus.',
       location: 'Paris, France',
+      isDefault: true,
       socials: [
-        { name: 'LinkedIn', icon: Linkedin, url: 'https://linkedin.com/in/gclvsai', username: '@GCLVSai' },
-        { name: 'Instagram', icon: Instagram, url: 'https://instagram.com/gclvsai', username: '@GCLVSai' },
-        { name: 'X (Twitter)', icon: XTwitter, url: 'https://x.com/gclvsai', username: '@GCLVSai' },
-        { name: 'GitHub', icon: Github, url: 'https://github.com/gclvsai', username: '@GCLVSai' },
-        { name: 'TikTok', icon: TikTok, url: 'https://tiktok.com/@gclvsai', username: '@GCLVSai' },
-        { name: 'YouTube', icon: YouTube, url: 'https://youtube.com/@gclvsai', username: '@GCLVSai' },
-        { name: 'Discord', icon: Discord, url: '#', username: 'GCLVSai#0001' },
-        { name: 'Telegram', icon: Telegram, url: 'https://t.me/gclvsai', username: '@GCLVSai' },
-        { name: 'WhatsApp', icon: WhatsApp, url: 'https://wa.me/33760239879', username: '+33 7 60 23 98 79' },
+        { name: 'LinkedIn', url: 'https://linkedin.com/in/gclvsai', username: '@GCLVSai' },
+        { name: 'Instagram', url: 'https://instagram.com/gclvsai', username: '@GCLVSai' },
+        { name: 'X (Twitter)', url: 'https://x.com/gclvsai', username: '@GCLVSai' },
+        { name: 'GitHub', url: 'https://github.com/gclvsai', username: '@GCLVSai' },
+        { name: 'TikTok', url: 'https://tiktok.com/@gclvsai', username: '@GCLVSai' },
+        { name: 'YouTube', url: 'https://youtube.com/@gclvsai', username: '@GCLVSai' },
+        { name: 'Discord', url: '#', username: 'GCLVSai#0001' },
+        { name: 'Telegram', url: 'https://t.me/gclvsai', username: '@GCLVSai' },
+        { name: 'WhatsApp', url: 'https://wa.me/33760239879', username: '+33 7 60 23 98 79' },
       ],
       tools: [
-        { name: 'n8n', category: 'Automatisation', color: 'bg-orange-100 text-orange-700' },
-        { name: 'OpenAI GPT-4', category: 'IA', color: 'bg-green-100 text-green-700' },
-        { name: 'Claude AI', category: 'IA', color: 'bg-purple-100 text-purple-700' },
-        { name: 'Midjourney', category: 'IA Image', color: 'bg-blue-100 text-blue-700' },
-        { name: 'Make.com', category: 'Automatisation', color: 'bg-pink-100 text-pink-700' },
-        { name: 'React', category: 'Dev', color: 'bg-cyan-100 text-cyan-700' },
-        { name: 'Node.js', category: 'Dev', color: 'bg-lime-100 text-lime-700' },
-        { name: 'Google Cloud', category: 'Cloud', color: 'bg-yellow-100 text-yellow-700' },
-        { name: 'Stripe', category: 'Paiement', color: 'bg-indigo-100 text-indigo-700' },
-        { name: 'Suno AI', category: 'IA Musique', color: 'bg-rose-100 text-rose-700' },
-        { name: 'ElevenLabs', category: 'IA Voix', color: 'bg-violet-100 text-violet-700' },
-        { name: 'Notion', category: 'Productivité', color: 'bg-gray-100 text-gray-700' },
+        { name: 'n8n', category: 'Automatisation' },
+        { name: 'OpenAI GPT-4', category: 'IA' },
+        { name: 'Claude AI', category: 'IA' },
+        { name: 'Midjourney', category: 'IA' },
+        { name: 'Make.com', category: 'Automatisation' },
+        { name: 'React', category: 'Dev' },
+        { name: 'Node.js', category: 'Dev' },
+        { name: 'Google Cloud', category: 'Cloud' },
+        { name: 'Stripe', category: 'Finance' },
+        { name: 'Suno AI', category: 'IA' },
+        { name: 'ElevenLabs', category: 'IA' },
+        { name: 'Notion', category: 'Productivité' },
       ],
       skills: ['Automatisation', 'Intelligence Artificielle', 'Développement Web', 'Intégration API', 'Stratégie Digitale', 'No-Code/Low-Code']
     },
     { 
-      id: 2, 
+      id: 'default-2', 
       name: 'Nicolas Nicoué', 
       email: 'nicouenicolas@gclvsai.fr', 
       phone: '+33 6 XX XX XX XX',
@@ -4192,32 +4199,33 @@ const TeamPage = () => {
       color: 'from-blue-600 to-cyan-600',
       bio: 'Créateur de contenu passionné, je transforme vos idées en visuels impactants. Expert en design graphique et production vidéo.',
       location: 'Paris, France',
+      isDefault: true,
       socials: [
-        { name: 'LinkedIn', icon: Linkedin, url: '#', username: '@NicolasNicoue' },
-        { name: 'Instagram', icon: Instagram, url: '#', username: '@nicolas.create' },
-        { name: 'Behance', icon: Image, url: '#', username: '@NicolasNicoue' },
-        { name: 'TikTok', icon: TikTok, url: '#', username: '@nicolas.create' },
-        { name: 'YouTube', icon: YouTube, url: '#', username: '@NicolasNicoue' },
-        { name: 'Pinterest', icon: Pinterest, url: '#', username: '@NicolasCreate' },
+        { name: 'LinkedIn', url: '#', username: '@NicolasNicoue' },
+        { name: 'Instagram', url: '#', username: '@nicolas.create' },
+        { name: 'Behance', url: '#', username: '@NicolasNicoue' },
+        { name: 'TikTok', url: '#', username: '@nicolas.create' },
+        { name: 'YouTube', url: '#', username: '@NicolasNicoue' },
+        { name: 'Pinterest', url: '#', username: '@NicolasCreate' },
       ],
       tools: [
-        { name: 'Adobe Photoshop', category: 'Design', color: 'bg-blue-100 text-blue-700' },
-        { name: 'Adobe Illustrator', category: 'Design', color: 'bg-orange-100 text-orange-700' },
-        { name: 'Adobe Premiere Pro', category: 'Vidéo', color: 'bg-purple-100 text-purple-700' },
-        { name: 'Adobe After Effects', category: 'Motion', color: 'bg-indigo-100 text-indigo-700' },
-        { name: 'Figma', category: 'UI/UX', color: 'bg-pink-100 text-pink-700' },
-        { name: 'Canva Pro', category: 'Design', color: 'bg-cyan-100 text-cyan-700' },
-        { name: 'DaVinci Resolve', category: 'Vidéo', color: 'bg-gray-100 text-gray-700' },
-        { name: 'Midjourney', category: 'IA Image', color: 'bg-violet-100 text-violet-700' },
-        { name: 'DALL-E 3', category: 'IA Image', color: 'bg-green-100 text-green-700' },
-        { name: 'Runway ML', category: 'IA Vidéo', color: 'bg-rose-100 text-rose-700' },
-        { name: 'CapCut', category: 'Vidéo', color: 'bg-teal-100 text-teal-700' },
-        { name: 'Lightroom', category: 'Photo', color: 'bg-yellow-100 text-yellow-700' },
+        { name: 'Adobe Photoshop', category: 'Design' },
+        { name: 'Adobe Illustrator', category: 'Design' },
+        { name: 'Adobe Premiere Pro', category: 'Vidéo' },
+        { name: 'Adobe After Effects', category: 'Vidéo' },
+        { name: 'Figma', category: 'Design' },
+        { name: 'Canva Pro', category: 'Design' },
+        { name: 'DaVinci Resolve', category: 'Vidéo' },
+        { name: 'Midjourney', category: 'IA' },
+        { name: 'DALL-E 3', category: 'IA' },
+        { name: 'Runway ML', category: 'IA' },
+        { name: 'CapCut', category: 'Vidéo' },
+        { name: 'Lightroom', category: 'Design' },
       ],
       skills: ['Design Graphique', 'Montage Vidéo', 'Motion Design', 'Photographie', 'Direction Artistique', 'Branding']
     },
     { 
-      id: 3, 
+      id: 'default-3', 
       name: 'Florian', 
       email: 'FN@nightcrow.fr', 
       phone: '+33 6 XX XX XX XX',
@@ -4226,31 +4234,31 @@ const TeamPage = () => {
       color: 'from-gray-700 to-gray-900',
       bio: 'Expert en cybersécurité et administration système. Je protège vos infrastructures et optimise vos performances serveur.',
       location: 'France',
+      isDefault: true,
       socials: [
-        { name: 'GitHub', icon: Github, url: '#', username: '@FloNightcrow' },
-        { name: 'Discord', icon: Discord, url: '#', username: 'Flo#1337' },
-        { name: 'LinkedIn', icon: Linkedin, url: '#', username: '@FlorianN' },
-        { name: 'GitLab', icon: Code, url: '#', username: '@FloNightcrow' },
-        { name: 'Stack Overflow', icon: Layers, url: '#', username: '@FloSec' },
+        { name: 'GitHub', url: '#', username: '@FloNightcrow' },
+        { name: 'Discord', url: '#', username: 'Flo#1337' },
+        { name: 'LinkedIn', url: '#', username: '@FlorianN' },
+        { name: 'Site Web', url: '#', username: '@FloNightcrow' },
       ],
       tools: [
-        { name: 'Linux/Ubuntu', category: 'OS', color: 'bg-orange-100 text-orange-700' },
-        { name: 'Docker', category: 'Container', color: 'bg-blue-100 text-blue-700' },
-        { name: 'Kubernetes', category: 'Orchestration', color: 'bg-indigo-100 text-indigo-700' },
-        { name: 'Nginx', category: 'Serveur', color: 'bg-green-100 text-green-700' },
-        { name: 'Cloudflare', category: 'CDN/Sécurité', color: 'bg-yellow-100 text-yellow-700' },
-        { name: 'GitHub Actions', category: 'CI/CD', color: 'bg-gray-100 text-gray-700' },
-        { name: 'Ansible', category: 'Automation', color: 'bg-red-100 text-red-700' },
-        { name: 'Prometheus', category: 'Monitoring', color: 'bg-rose-100 text-rose-700' },
-        { name: 'Grafana', category: 'Dashboard', color: 'bg-amber-100 text-amber-700' },
-        { name: 'Wireguard', category: 'VPN', color: 'bg-purple-100 text-purple-700' },
-        { name: 'Mattermost', category: 'Communication', color: 'bg-cyan-100 text-cyan-700' },
-        { name: 'PostgreSQL', category: 'Database', color: 'bg-sky-100 text-sky-700' },
+        { name: 'Linux/Ubuntu', category: 'Sécurité' },
+        { name: 'Docker', category: 'Dev' },
+        { name: 'Kubernetes', category: 'Dev' },
+        { name: 'Nginx', category: 'Dev' },
+        { name: 'Cloudflare', category: 'Sécurité' },
+        { name: 'GitHub Actions', category: 'Dev' },
+        { name: 'Ansible', category: 'Automatisation' },
+        { name: 'Prometheus', category: 'Dev' },
+        { name: 'Grafana', category: 'Dev' },
+        { name: 'Wireguard', category: 'Sécurité' },
+        { name: 'Mattermost', category: 'Communication' },
+        { name: 'PostgreSQL', category: 'Database' },
       ],
       skills: ['Cybersécurité', 'Administration Système', 'DevOps', 'Infrastructure Cloud', 'Réseaux', 'Scripting Bash/Python']
     },
     { 
-      id: 4, 
+      id: 'default-4', 
       name: 'Romain S.', 
       email: 'RS@nightcrow.fr', 
       phone: '+33 6 XX XX XX XX',
@@ -4259,26 +4267,512 @@ const TeamPage = () => {
       color: 'from-emerald-600 to-teal-600',
       bio: 'Expert en stratégie financière et levée de fonds. J\'accompagne les entrepreneurs dans leur croissance et leurs investissements.',
       location: 'Paris, France',
+      isDefault: true,
       socials: [
-        { name: 'LinkedIn', icon: Linkedin, url: '#', username: '@RomainS-Invest' },
-        { name: 'X (Twitter)', icon: XTwitter, url: '#', username: '@RomainS_Finance' },
-        { name: 'Email Pro', icon: Mail, url: 'mailto:RS@nightcrow.fr', username: 'RS@nightcrow.fr' },
+        { name: 'LinkedIn', url: '#', username: '@RomainS-Invest' },
+        { name: 'X (Twitter)', url: '#', username: '@RomainS_Finance' },
+        { name: 'Email', url: 'mailto:RS@nightcrow.fr', username: 'RS@nightcrow.fr' },
       ],
       tools: [
-        { name: 'Excel/Sheets', category: 'Finance', color: 'bg-green-100 text-green-700' },
-        { name: 'Bloomberg', category: 'Finance', color: 'bg-orange-100 text-orange-700' },
-        { name: 'Notion', category: 'Productivité', color: 'bg-gray-100 text-gray-700' },
-        { name: 'Airtable', category: 'Database', color: 'bg-blue-100 text-blue-700' },
-        { name: 'DocuSign', category: 'Juridique', color: 'bg-yellow-100 text-yellow-700' },
-        { name: 'Slack', category: 'Communication', color: 'bg-purple-100 text-purple-700' },
-        { name: 'Zoom', category: 'Visio', color: 'bg-cyan-100 text-cyan-700' },
-        { name: 'HubSpot', category: 'CRM', color: 'bg-rose-100 text-rose-700' },
-        { name: 'Stripe', category: 'Paiement', color: 'bg-indigo-100 text-indigo-700' },
-        { name: 'QuickBooks', category: 'Compta', color: 'bg-lime-100 text-lime-700' },
+        { name: 'Excel/Sheets', category: 'Finance' },
+        { name: 'Bloomberg', category: 'Finance' },
+        { name: 'Notion', category: 'Productivité' },
+        { name: 'Airtable', category: 'Database' },
+        { name: 'DocuSign', category: 'Productivité' },
+        { name: 'Slack', category: 'Communication' },
+        { name: 'Zoom', category: 'Communication' },
+        { name: 'HubSpot', category: 'Marketing' },
+        { name: 'Stripe', category: 'Finance' },
+        { name: 'QuickBooks', category: 'Finance' },
       ],
       skills: ['Levée de Fonds', 'Business Plan', 'Analyse Financière', 'Stratégie d\'Investissement', 'Due Diligence', 'M&A']
     },
   ];
+
+  // Combiner membres par défaut + membres Notion
+  const allMembers = [...defaultMembers, ...notionMembers];
+
+  const socialOptions = [
+    { name: 'LinkedIn', icon: Linkedin },
+    { name: 'Instagram', icon: Instagram },
+    { name: 'X (Twitter)', icon: XTwitter },
+    { name: 'GitHub', icon: Github },
+    { name: 'TikTok', icon: TikTok },
+    { name: 'YouTube', icon: YouTube },
+    { name: 'Discord', icon: Discord },
+    { name: 'Telegram', icon: Telegram },
+    { name: 'WhatsApp', icon: WhatsApp },
+    { name: 'Facebook', icon: Facebook },
+    { name: 'Pinterest', icon: Pinterest },
+    { name: 'Behance', icon: Image },
+    { name: 'Dribbble', icon: Image },
+    { name: 'Email', icon: Mail },
+    { name: 'Site Web', icon: Globe },
+  ];
+
+  const toolColors = {
+    'IA': 'bg-green-100 text-green-700',
+    'Design': 'bg-pink-100 text-pink-700',
+    'Dev': 'bg-cyan-100 text-cyan-700',
+    'Vidéo': 'bg-purple-100 text-purple-700',
+    'Automatisation': 'bg-orange-100 text-orange-700',
+    'Cloud': 'bg-blue-100 text-blue-700',
+    'Finance': 'bg-emerald-100 text-emerald-700',
+    'Communication': 'bg-indigo-100 text-indigo-700',
+    'Productivité': 'bg-gray-100 text-gray-700',
+    'Sécurité': 'bg-red-100 text-red-700',
+    'Database': 'bg-yellow-100 text-yellow-700',
+    'Marketing': 'bg-rose-100 text-rose-700',
+  };
+
+  const colorOptions = [
+    { value: 'from-purple-600 to-pink-600', label: 'Violet/Rose' },
+    { value: 'from-blue-600 to-cyan-600', label: 'Bleu/Cyan' },
+    { value: 'from-gray-700 to-gray-900', label: 'Gris foncé' },
+    { value: 'from-emerald-600 to-teal-600', label: 'Vert/Teal' },
+    { value: 'from-orange-500 to-red-500', label: 'Orange/Rouge' },
+    { value: 'from-pink-500 to-rose-500', label: 'Rose' },
+    { value: 'from-indigo-500 to-purple-500', label: 'Indigo' },
+    { value: 'from-yellow-500 to-orange-500', label: 'Jaune/Orange' },
+  ];
+
+  const toolCategories = ['IA', 'Design', 'Dev', 'Vidéo', 'Automatisation', 'Cloud', 'Finance', 'Communication', 'Productivité', 'Sécurité', 'Database', 'Marketing'];
+
+  const emptyMember = {
+    id: null,
+    name: '',
+    email: '',
+    phone: '',
+    role: '',
+    avatar: '',
+    color: 'from-purple-600 to-pink-600',
+    bio: '',
+    location: '',
+    socials: [],
+    tools: [],
+    skills: []
+  };
+
+  const [formData, setFormData] = useState(emptyMember);
+  const [newSocial, setNewSocial] = useState({ name: '', username: '', url: '' });
+  const [newTool, setNewTool] = useState({ name: '', category: '' });
+  const [newSkill, setNewSkill] = useState('');
+
+  // Mapper les icônes pour un membre
+  const mapMemberIcons = (member) => ({
+    ...member,
+    socials: (member.socials || []).map(s => ({
+      ...s,
+      icon: socialOptions.find(opt => opt.name === s.name)?.icon || Globe
+    })),
+    tools: (member.tools || []).map(t => ({
+      ...t,
+      color: toolColors[t.category] || 'bg-gray-100 text-gray-700'
+    }))
+  });
+
+  // Charger les membres depuis Notion
+  const loadMembers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Get_team_members", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      
+      if (response.ok) {
+        const text = await response.text();
+        if (text) {
+          const data = JSON.parse(text);
+          const membersList = Array.isArray(data) ? data : (data.length ? data : []);
+          const membersWithIcons = membersList.map(mapMemberIcons);
+          setNotionMembers(membersWithIcons);
+        }
+      }
+    } catch (error) {
+      console.log("Erreur chargement équipe:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMembers();
+  }, []);
+
+  // Ajouter un membre
+  const addMember = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Add_team_member", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          avatar: formData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+          createdAt: new Date().toISOString()
+        }),
+      });
+      
+      if (response.ok) {
+        setShowAddModal(false);
+        setFormData(emptyMember);
+        loadMembers();
+      }
+    } catch (error) {
+      console.log("Erreur ajout membre:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Modifier un membre
+  const updateMember = async () => {
+    // Si c'est un membre par défaut, on ne peut pas le modifier via Notion
+    if (selectedMember?.isDefault) {
+      alert("Les membres fondateurs ne peuvent pas être modifiés depuis l'interface.");
+      setIsEditing(false);
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const response = await fetch("https://n8n.nightcrow.fr/webhook/Update_team_member", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          updatedAt: new Date().toISOString()
+        }),
+      });
+      
+      if (response.ok) {
+        setIsEditing(false);
+        setSelectedMember(null);
+        loadMembers();
+      }
+    } catch (error) {
+      console.log("Erreur modification membre:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Supprimer un membre
+  const deleteMember = async (id) => {
+    // Si c'est un membre par défaut, on ne peut pas le supprimer
+    if (id.startsWith('default-')) {
+      alert("Les membres fondateurs ne peuvent pas être supprimés.");
+      return;
+    }
+    
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
+    
+    try {
+      await fetch("https://n8n.nightcrow.fr/webhook/Delete_team_member", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      
+      setSelectedMember(null);
+      loadMembers();
+    } catch (error) {
+      console.log("Erreur suppression membre:", error);
+    }
+  };
+
+  // Ouvrir le mode édition
+  const openEditMode = (member) => {
+    if (member.isDefault) {
+      alert("Les membres fondateurs ne peuvent pas être modifiés depuis l'interface.");
+      return;
+    }
+    setFormData({
+      ...member,
+      socials: member.socials.map(s => ({ name: s.name, username: s.username, url: s.url })),
+      tools: member.tools.map(t => ({ name: t.name, category: t.category }))
+    });
+    setIsEditing(true);
+  };
+
+  // Ouvrir le formulaire d'ajout
+  const openAddModal = () => {
+    setFormData(emptyMember);
+    setShowAddModal(true);
+  };
+
+  // Ajouter un réseau social
+  const addSocial = () => {
+    if (newSocial.name && newSocial.username) {
+      setFormData(prev => ({
+        ...prev,
+        socials: [...prev.socials, { ...newSocial }]
+      }));
+      setNewSocial({ name: '', username: '', url: '' });
+    }
+  };
+
+  const removeSocial = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      socials: prev.socials.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addTool = () => {
+    if (newTool.name && newTool.category) {
+      setFormData(prev => ({
+        ...prev,
+        tools: [...prev.tools, { ...newTool }]
+      }));
+      setNewTool({ name: '', category: '' });
+    }
+  };
+
+  const removeTool = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      tools: prev.tools.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addSkill = () => {
+    if (newSkill && !formData.skills.includes(newSkill)) {
+      setFormData(prev => ({
+        ...prev,
+        skills: [...prev.skills, newSkill]
+      }));
+      setNewSkill('');
+    }
+  };
+
+  const removeSkill = (skill) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.filter(s => s !== skill)
+    }));
+  };
+
+  // Préparer les membres pour l'affichage
+  const displayMembers = allMembers.map(mapMemberIcons);
+
+  // Formulaire d'édition/ajout
+  const MemberForm = ({ onSave, onCancel, title }) => (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onCancel}>
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className={`h-20 bg-gradient-to-r ${formData.color} flex items-center justify-between px-6`}>
+          <h2 className="text-xl font-bold text-white">{title}</h2>
+          <button onClick={onCancel} className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+          <div className="grid grid-cols-2 gap-6">
+            {/* Colonne gauche */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg border-b pb-2">📋 Informations de base</h3>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom complet *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-xl"
+                  placeholder="Ex: Steve Gonçalves"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Rôle / Poste *</label>
+                <input
+                  type="text"
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-xl"
+                  placeholder="Ex: Expert en Automatisation"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email *</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-xl"
+                    placeholder="email@exemple.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Téléphone</label>
+                  <input
+                    type="text"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-xl"
+                    placeholder="+33 6 XX XX XX XX"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Localisation</label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-xl"
+                  placeholder="Ex: Paris, France"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Couleur du profil</label>
+                <div className="flex flex-wrap gap-2">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color.value}
+                      onClick={() => setFormData({ ...formData, color: color.value })}
+                      className={`w-10 h-10 rounded-xl bg-gradient-to-r ${color.value} ${formData.color === color.value ? 'ring-2 ring-offset-2 ring-purple-500' : ''}`}
+                      title={color.label}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Bio / Description</label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-xl resize-none"
+                  rows={3}
+                  placeholder="Décrivez le rôle et les compétences..."
+                />
+              </div>
+
+              {/* Compétences */}
+              <div>
+                <label className="block text-sm font-medium mb-2">⭐ Compétences clés</label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-xl text-sm"
+                    placeholder="Ex: Intelligence Artificielle"
+                    onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+                  />
+                  <Button size="sm" onClick={addSkill}><Plus className="w-4 h-4" /></Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.skills.map((skill, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm flex items-center gap-1">
+                      {skill}
+                      <button onClick={() => removeSkill(skill)} className="hover:text-red-500"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Colonne droite */}
+            <div className="space-y-4">
+              {/* Réseaux sociaux */}
+              <h3 className="font-bold text-lg border-b pb-2">🌐 Réseaux sociaux</h3>
+              
+              <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    value={newSocial.name}
+                    onChange={(e) => setNewSocial({ ...newSocial, name: e.target.value })}
+                    className="px-3 py-2 border rounded-xl text-sm"
+                  >
+                    <option value="">Réseau...</option>
+                    {socialOptions.map(opt => (
+                      <option key={opt.name} value={opt.name}>{opt.name}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    value={newSocial.username}
+                    onChange={(e) => setNewSocial({ ...newSocial, username: e.target.value })}
+                    className="px-3 py-2 border rounded-xl text-sm"
+                    placeholder="@username"
+                  />
+                  <input
+                    type="text"
+                    value={newSocial.url}
+                    onChange={(e) => setNewSocial({ ...newSocial, url: e.target.value })}
+                    className="px-3 py-2 border rounded-xl text-sm"
+                    placeholder="URL (optionnel)"
+                  />
+                </div>
+                <Button size="sm" onClick={addSocial} className="w-full"><Plus className="w-4 h-4" /> Ajouter</Button>
+              </div>
+              
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {formData.socials.map((social, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-white p-2 rounded-lg border">
+                    <span className="text-sm"><strong>{social.name}</strong> - {social.username}</span>
+                    <button onClick={() => removeSocial(idx)} className="text-red-500 hover:bg-red-50 p-1 rounded"><X className="w-4 h-4" /></button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Outils */}
+              <h3 className="font-bold text-lg border-b pb-2 mt-6">🔧 Outils & Technologies</h3>
+              
+              <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={newTool.name}
+                    onChange={(e) => setNewTool({ ...newTool, name: e.target.value })}
+                    className="px-3 py-2 border rounded-xl text-sm"
+                    placeholder="Nom de l'outil"
+                  />
+                  <select
+                    value={newTool.category}
+                    onChange={(e) => setNewTool({ ...newTool, category: e.target.value })}
+                    className="px-3 py-2 border rounded-xl text-sm"
+                  >
+                    <option value="">Catégorie...</option>
+                    {toolCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <Button size="sm" onClick={addTool} className="w-full"><Plus className="w-4 h-4" /> Ajouter</Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                {formData.tools.map((tool, idx) => (
+                  <span key={idx} className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${toolColors[tool.category] || 'bg-gray-100'}`}>
+                    {tool.name}
+                    <button onClick={() => removeTool(idx)} className="hover:text-red-500"><X className="w-3 h-3" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t">
+            <Button variant="outline" onClick={onCancel}>Annuler</Button>
+            <Button onClick={onSave} disabled={saving || !formData.name || !formData.email || !formData.role}>
+              {saving ? <><RefreshCw className="w-4 h-4 animate-spin" /> Enregistrement...</> : <><Save className="w-4 h-4" /> Enregistrer</>}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex-1 bg-gray-50 overflow-y-auto">
@@ -4286,102 +4780,178 @@ const TeamPage = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold">👥 Notre Équipe</h1>
-            <p className="text-gray-600">Les experts derrière GCLVS AI</p>
+            <p className="text-gray-600">Les experts derrière GCLVS AI ({displayMembers.length} membres)</p>
           </div>
-          <Button><Plus className="w-4 h-4" /> Inviter</Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={loadMembers}>
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Actualiser
+            </Button>
+            <Button onClick={openAddModal}>
+              <Plus className="w-4 h-4" /> Inviter
+            </Button>
+          </div>
         </div>
 
-        {/* Grille des membres */}
-        <div className="grid grid-cols-2 gap-6">
-          {members.map(m => (
-            <Card 
-              key={m.id} 
-              className="p-6 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02]"
-              onClick={() => setSelectedMember(m)}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`w-16 h-16 bg-gradient-to-br ${m.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg`}>
-                  {m.avatar}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg">{m.name}</h3>
-                  <p className="text-sm text-purple-600 font-medium mb-2">{m.role}</p>
-                  <p className="text-sm text-gray-500">{m.email}</p>
-                </div>
-              </div>
-              
-              {/* Aperçu des outils */}
-              <div className="mt-4 flex flex-wrap gap-1">
-                {m.tools.slice(0, 4).map((tool, idx) => (
-                  <span key={idx} className={`text-xs px-2 py-1 rounded-full ${tool.color}`}>
-                    {tool.name}
-                  </span>
-                ))}
-                {m.tools.length > 4 && (
-                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">
-                    +{m.tools.length - 4}
-                  </span>
-                )}
-              </div>
-              
-              {/* Réseaux sociaux aperçu */}
-              <div className="mt-4 flex items-center gap-2">
-                {m.socials.slice(0, 5).map((social, idx) => (
-                  <div key={idx} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <social.icon className="w-4 h-4 text-gray-600" />
+        {/* Section Fondateurs */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Crown className="w-5 h-5 text-yellow-500" /> Équipe fondatrice
+          </h2>
+          <div className="grid grid-cols-2 gap-6">
+            {displayMembers.filter(m => m.isDefault).map(m => (
+              <Card 
+                key={m.id} 
+                className="p-6 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-2 border-yellow-100"
+                onClick={() => setSelectedMember(m)}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`w-16 h-16 bg-gradient-to-br ${m.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg relative`}>
+                    {m.avatar}
+                    <Crown className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1" />
                   </div>
-                ))}
-                {m.socials.length > 5 && (
-                  <span className="text-xs text-gray-400">+{m.socials.length - 5}</span>
-                )}
-              </div>
-            </Card>
-          ))}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg">{m.name}</h3>
+                    <p className="text-sm text-purple-600 font-medium mb-2">{m.role}</p>
+                    <p className="text-sm text-gray-500">{m.email}</p>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex flex-wrap gap-1">
+                  {(m.tools || []).slice(0, 4).map((tool, idx) => (
+                    <span key={idx} className={`text-xs px-2 py-1 rounded-full ${tool.color}`}>
+                      {tool.name}
+                    </span>
+                  ))}
+                  {(m.tools || []).length > 4 && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+                      +{m.tools.length - 4}
+                    </span>
+                  )}
+                </div>
+                
+                <div className="mt-4 flex items-center gap-2">
+                  {(m.socials || []).slice(0, 5).map((social, idx) => (
+                    <div key={idx} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <social.icon className="w-4 h-4 text-gray-600" />
+                    </div>
+                  ))}
+                  {(m.socials || []).length > 5 && (
+                    <span className="text-xs text-gray-400">+{m.socials.length - 5}</span>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
+
+        {/* Section Membres ajoutés */}
+        {notionMembers.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-500" /> Équipe étendue
+            </h2>
+            <div className="grid grid-cols-2 gap-6">
+              {displayMembers.filter(m => !m.isDefault).map(m => (
+                <Card 
+                  key={m.id} 
+                  className="p-6 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02]"
+                  onClick={() => setSelectedMember(m)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${m.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg`}>
+                      {m.avatar}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg">{m.name}</h3>
+                      <p className="text-sm text-purple-600 font-medium mb-2">{m.role}</p>
+                      <p className="text-sm text-gray-500">{m.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 flex flex-wrap gap-1">
+                    {(m.tools || []).slice(0, 4).map((tool, idx) => (
+                      <span key={idx} className={`text-xs px-2 py-1 rounded-full ${tool.color}`}>
+                        {tool.name}
+                      </span>
+                    ))}
+                    {(m.tools || []).length > 4 && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+                        +{m.tools.length - 4}
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4 flex items-center gap-2">
+                    {(m.socials || []).slice(0, 5).map((social, idx) => (
+                      <div key={idx} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <social.icon className="w-4 h-4 text-gray-600" />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* POPUP MEMBRE SÉLECTIONNÉ */}
-        {selectedMember && (
+        {selectedMember && !isEditing && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedMember(null)}>
             <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              {/* Header avec gradient */}
               <div className={`h-32 bg-gradient-to-r ${selectedMember.color} relative`}>
-                <button 
-                  onClick={() => setSelectedMember(null)}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="absolute top-4 right-4 flex gap-2">
+                  {!selectedMember.isDefault && (
+                    <>
+                      <button onClick={() => openEditMode(selectedMember)} className="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30" title="Modifier">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => deleteMember(selectedMember.id)} className="w-10 h-10 bg-red-500/50 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-red-500/70" title="Supprimer">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                  <button onClick={() => setSelectedMember(null)} className="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/30">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
                 <div className="absolute -bottom-12 left-8">
-                  <div className={`w-24 h-24 bg-gradient-to-br ${selectedMember.color} rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-xl border-4 border-white`}>
+                  <div className={`w-24 h-24 bg-gradient-to-br ${selectedMember.color} rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-xl border-4 border-white relative`}>
                     {selectedMember.avatar}
+                    {selectedMember.isDefault && <Crown className="w-6 h-6 text-yellow-400 absolute -top-2 -right-2" />}
                   </div>
                 </div>
               </div>
               
               <div className="pt-16 px-8 pb-8 overflow-y-auto max-h-[calc(90vh-128px)]">
-                {/* Infos principales */}
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold">{selectedMember.name}</h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-2xl font-bold">{selectedMember.name}</h2>
+                      {selectedMember.isDefault && <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">Fondateur</span>}
+                    </div>
                     <p className="text-purple-600 font-medium">{selectedMember.role}</p>
-                    <p className="text-gray-500 text-sm mt-1 flex items-center gap-2">
-                      <Map className="w-4 h-4" /> {selectedMember.location}
-                    </p>
+                    {selectedMember.location && (
+                      <p className="text-gray-500 text-sm mt-1 flex items-center gap-2">
+                        <Map className="w-4 h-4" /> {selectedMember.location}
+                      </p>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => window.location.href = `mailto:${selectedMember.email}`}>
                       <Mail className="w-4 h-4" /> Email
                     </Button>
-                    <Button size="sm" onClick={() => window.location.href = `tel:${selectedMember.phone}`}>
-                      <Phone className="w-4 h-4" /> Appeler
-                    </Button>
+                    {selectedMember.phone && (
+                      <Button size="sm" onClick={() => window.location.href = `tel:${selectedMember.phone}`}>
+                        <Phone className="w-4 h-4" /> Appeler
+                      </Button>
+                    )}
                   </div>
                 </div>
 
-                {/* Bio */}
-                <p className="text-gray-600 mb-6 bg-gray-50 p-4 rounded-xl">{selectedMember.bio}</p>
+                {selectedMember.bio && (
+                  <p className="text-gray-600 mb-6 bg-gray-50 p-4 rounded-xl">{selectedMember.bio}</p>
+                )}
 
-                {/* Contact rapide */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-gray-50 p-4 rounded-xl">
                     <p className="text-xs text-gray-500 mb-1">Email</p>
@@ -4389,74 +4959,89 @@ const TeamPage = () => {
                   </div>
                   <div className="bg-gray-50 p-4 rounded-xl">
                     <p className="text-xs text-gray-500 mb-1">Téléphone</p>
-                    <p className="font-medium text-sm">{selectedMember.phone}</p>
+                    <p className="font-medium text-sm">{selectedMember.phone || 'Non renseigné'}</p>
                   </div>
                 </div>
 
-                {/* Réseaux sociaux */}
-                <div className="mb-6">
-                  <h3 className="font-bold mb-3 flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-blue-500" /> Réseaux & Contacts
-                  </h3>
-                  <div className="grid grid-cols-3 gap-3">
-                    {selectedMember.socials.map((social, idx) => (
-                      <a 
-                        key={idx}
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                          <social.icon className="w-5 h-5 text-gray-700" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-500">{social.name}</p>
-                          <p className="text-sm font-medium truncate">{social.username}</p>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </a>
-                    ))}
+                {selectedMember.socials && selectedMember.socials.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-3 flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-blue-500" /> Réseaux & Contacts
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {selectedMember.socials.map((social, idx) => (
+                        <a 
+                          key={idx}
+                          href={social.url || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                            <social.icon className="w-5 h-5 text-gray-700" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-gray-500">{social.name}</p>
+                            <p className="text-sm font-medium truncate">{social.username}</p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-gray-400" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Outils & Technologies */}
-                <div className="mb-6">
-                  <h3 className="font-bold mb-3 flex items-center gap-2">
-                    <Wrench className="w-5 h-5 text-orange-500" /> Outils & Technologies
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedMember.tools.map((tool, idx) => (
-                      <span 
-                        key={idx} 
-                        className={`px-3 py-2 rounded-xl text-sm font-medium ${tool.color}`}
-                      >
-                        {tool.name}
-                        <span className="ml-1 text-xs opacity-70">• {tool.category}</span>
-                      </span>
-                    ))}
+                {selectedMember.tools && selectedMember.tools.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-3 flex items-center gap-2">
+                      <Wrench className="w-5 h-5 text-orange-500" /> Outils & Technologies
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedMember.tools.map((tool, idx) => (
+                        <span key={idx} className={`px-3 py-2 rounded-xl text-sm font-medium ${tool.color}`}>
+                          {tool.name}
+                          <span className="ml-1 text-xs opacity-70">• {tool.category}</span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Compétences */}
-                <div>
-                  <h3 className="font-bold mb-3 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-yellow-500" /> Compétences clés
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedMember.skills.map((skill, idx) => (
-                      <span 
-                        key={idx} 
-                        className="px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-full text-sm font-medium border border-purple-100"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                {selectedMember.skills && selectedMember.skills.length > 0 && (
+                  <div>
+                    <h3 className="font-bold mb-3 flex items-center gap-2">
+                      <Star className="w-5 h-5 text-yellow-500" /> Compétences clés
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedMember.skills.map((skill, idx) => (
+                        <span key={idx} className="px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-full text-sm font-medium border border-purple-100">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
+        )}
+
+        {/* FORMULAIRE AJOUT */}
+        {showAddModal && (
+          <MemberForm 
+            title="➕ Ajouter un membre"
+            onSave={addMember}
+            onCancel={() => setShowAddModal(false)}
+          />
+        )}
+
+        {/* FORMULAIRE ÉDITION */}
+        {isEditing && (
+          <MemberForm 
+            title="✏️ Modifier le profil"
+            onSave={updateMember}
+            onCancel={() => { setIsEditing(false); setSelectedMember(null); }}
+          />
         )}
       </div>
     </div>
@@ -4562,7 +5147,7 @@ export default function App() {
       <Sidebar page={page} setPage={setPage} assistant={assistant} setAssistant={setAssistant} />
       {renderPage()}
       <div className="fixed bottom-4 right-4 w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg cursor-pointer hover:scale-110 transition-transform">
-        T
+        S
       </div>
     </div>
   );
